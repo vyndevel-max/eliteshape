@@ -60,19 +60,44 @@ export default function ChatPanel({ profile }: ChatPanelProps) {
       return `Olá ${name}. Ainda não há uma análise corporal registrada. Pode fazer perguntas sobre treino e nutrição à vontade.`
     }
 
-    const score = analysisContext?.overall_score
-    const bf = analysisContext?.fat_percentage_estimate
-    const strong = analysisContext?.strong_points?.slice(0, 2).join(', ')
-    const weak = analysisContext?.weak_points?.slice(0, 2).join(', ')
     const objective = profile.objective || 'seus objetivos'
 
+    // No valid analysis data — greet using training plan context only
+    if (!analysisContext || analysisContext.overall_score === undefined) {
+      if (mode === 'motivational') return `Fala ${name}! 💪 Já temos seu plano de treino e nutrição prontos. Vamos trabalhar firme em direção a **${objective}**! Me pergunte qualquer coisa sobre seu treino, dieta ou progresso.`
+      if (mode === 'raiz') return `${name}, seu plano já está pronto. Objetivo: ${objective}. O que precisa?`
+      return `Olá ${name}. Seu plano de treino e nutrição já está disponível, focado em ${objective}. Como posso ajudar?`
+    }
+
+    const score = analysisContext.overall_score
+    const bf = analysisContext.fat_percentage_estimate
+    const strong = analysisContext.strong_points?.length ? analysisContext.strong_points.slice(0, 2).join(', ') : null
+    const weak = analysisContext.weak_points?.length ? analysisContext.weak_points.slice(0, 2).join(', ') : null
+
     if (mode === 'motivational') {
-      return `Fala ${name}! 💪 Baseado na sua análise, você tem muito potencial! Sua nota foi **${score}/10**, com **${bf}% de gordura**. Seus pontos fortes são: **${strong}**. As áreas pra focar: **${weak}**. Vamos trabalhar em cima disso pra você conquistar **${objective}**! Me pergunte qualquer coisa!`
+      let msg = `Fala ${name}! 💪 Baseado na sua análise, você tem muito potencial! Sua nota foi **${score}/10**`
+      if (bf !== undefined) msg += `, com **${bf}% de gordura**`
+      msg += '. '
+      if (strong) msg += `Seus pontos fortes são: **${strong}**. `
+      if (weak) msg += `As áreas pra focar: **${weak}**. `
+      msg += `Vamos trabalhar em cima disso pra você conquistar **${objective}**! Me pergunte qualquer coisa!`
+      return msg
     }
     if (mode === 'raiz') {
-      return `${name}, análise feita. Nota ${score}/10, ${bf}% gordura. Pontos fortes: ${strong}. Pontos fracos: ${weak}. Objetivo: ${objective}. O que quer saber?`
+      let msg = `${name}, análise feita. Nota ${score}/10`
+      if (bf !== undefined) msg += `, ${bf}% gordura`
+      if (strong) msg += `. Pontos fortes: ${strong}`
+      if (weak) msg += `. Pontos fracos: ${weak}`
+      msg += `. Objetivo: ${objective}. O que quer saber?`
+      return msg
     }
-    return `Olá ${name}. Análise registrada: score **${score}/10**, **${bf}%** de gordura corporal. Pontos fortes identificados: ${strong}. Áreas prioritárias: ${weak}. Objetivo atual: ${objective}. Como posso ajudar?`
+    let msg = `Olá ${name}. Análise registrada: score **${score}/10**`
+    if (bf !== undefined) msg += `, **${bf}%** de gordura corporal`
+    msg += '. '
+    if (strong) msg += `Pontos fortes identificados: ${strong}. `
+    if (weak) msg += `Áreas prioritárias: ${weak}. `
+    msg += `Objetivo atual: ${objective}. Como posso ajudar?`
+    return msg
   }
 
   const sendMessage = async (text?: string) => {

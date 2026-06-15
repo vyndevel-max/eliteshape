@@ -106,7 +106,7 @@ export default function CoachPanel({ profile, onProfileUpdate }: CoachPanelProps
         await supabase.from('profiles').update({
           training_plan: data.training_plan,
           nutrition_plan: data.nutrition_plan,
-          last_analysis: JSON.stringify(data).slice(0, 2000),
+          last_analysis: JSON.stringify(data),
           target_calories: data.nutrition_schedule?.target_calories,
           target_protein: data.nutrition_schedule?.target_protein,
           target_carbs: data.nutrition_schedule?.target_carbs,

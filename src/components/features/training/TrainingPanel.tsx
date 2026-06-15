@@ -161,6 +161,16 @@ function makeExerciseData(name: string): ExerciseData {
   }
 }
 
+function exerciseSearchQuery(name: string): string {
+  // Strip trailing sets info like " — 4x10-12" before building the search query
+  const clean = name.replace(/\s*[—-]\s*\d+\s*[x×]\s*\d+[-–]?\d*\s*$/, '').trim()
+  return encodeURIComponent(`${clean} execução técnica correta`)
+}
+
+function exerciseSearchUrl(name: string): string {
+  return `https://www.youtube.com/results?search_query=${exerciseSearchQuery(name)}`
+}
+
 export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPanelProps) {
   const [generating, setGenerating] = useState(false)
   const [selectedDay, setSelectedDay] = useState<string | null>(null)
@@ -426,6 +436,11 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
                               <IconSave /><span>Salvar</span>
                             </button>
                           )}
+                          <a href={exerciseSearchUrl(ex.name)} target="_blank" rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-xs text-[#555] border border-[#1C1C1C] hover:border-[#333] hover:text-[#999] rounded-lg px-2.5 py-1.5 transition-all"
+                            title="Ver vídeo de execução no YouTube">
+                            <IconPlay /><span className="hidden sm:inline">Ver execução</span>
+                          </a>
                           <button onClick={() => updateExercise(selectedDay, exIdx, { swapOpen: !ex.swapOpen, swapResult: '' })}
                             className={`flex items-center gap-1 text-xs border rounded-lg px-2.5 py-1.5 transition-all ${ex.swapOpen ? 'text-[#E8002D] border-[#E8002D]/30 bg-[#E8002D]/5' : 'text-[#555] border-[#1C1C1C] hover:border-[#333] hover:text-[#999]'}`}>
                             <IconSwap /><span>Trocar</span>

@@ -60,6 +60,10 @@ const steps = [
         key: 'favorite_carbs', label: 'Quais carboidratos você mais gosta?', type: 'multicheck',
         options: ['Arroz', 'Batata doce', 'Macarrão', 'Pão integral', 'Aveia', 'Mandioca', 'Frutas', 'Inhame'],
       },
+      {
+        key: 'available_foods', label: 'O que você tem disponível em casa agora? (geladeira/despensa)', type: 'textarea',
+        placeholder: 'Ex: arroz, feijão, frango congelado, ovos, aveia, banana, leite, pão integral, atum em lata... Liste tudo que tiver, mesmo que pareça pouco!',
+      },
     ],
   },
   {
@@ -124,7 +128,7 @@ export default function NutritionQuiz({ profile, onComplete }: NutritionQuizProp
   }
 
   const canAdvance = () => {
-    const optional = ['disliked_foods', 'food_intolerances']
+    const optional = ['disliked_foods', 'food_intolerances', 'available_foods']
     return current.fields.filter(f => !optional.includes(f.key)).every(f => {
       const val = form[f.key]
       if (f.type === 'multicheck') return true // optional

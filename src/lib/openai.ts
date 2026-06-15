@@ -99,6 +99,11 @@ Atleta/Athlete Data:
 - Supplements/Suplementos: ${profile.wants_supplements ? 'Yes/Sim' : 'No/Não'}
 - TDEE: ${tdee} kcal/day
 - Personality mode: ${profile.personality_mode}
+${(profile as any).favorite_proteins?.length ? `- Proteínas preferidas: ${(profile as any).favorite_proteins.join(', ')}` : ''}
+${(profile as any).favorite_carbs?.length ? `- Carboidratos preferidos: ${(profile as any).favorite_carbs.join(', ')}` : ''}
+${(profile as any).food_intolerances?.length ? `- Intolerâncias/alergias: ${(profile as any).food_intolerances.join(', ')}` : ''}
+${(profile as any).disliked_foods ? `- Não come: ${(profile as any).disliked_foods}` : ''}
+${(profile as any).available_foods ? `- ALIMENTOS DISPONÍVEIS AGORA (priorize estes na dieta sugerida): ${(profile as any).available_foods}` : ''}
 `
 
   const personalityMode = (profile.personality_mode as string) || 'motivational'
@@ -230,6 +235,11 @@ Horário de treino: ${profile.training_time} | Sono: ${profile.sleep}h
 Saúde/Lesões: ${profile.health_conditions || 'nenhuma'}
 Orçamento: ${profile.financial_condition} | Suplementos: ${profile.wants_supplements}
 Dieta: ${profile.current_diet}
+${(profile as any).favorite_proteins?.length ? `Proteínas preferidas: ${(profile as any).favorite_proteins.join(', ')}` : ''}
+${(profile as any).favorite_carbs?.length ? `Carboidratos preferidos: ${(profile as any).favorite_carbs.join(', ')}` : ''}
+${(profile as any).food_intolerances?.length ? `Intolerâncias/alergias: ${(profile as any).food_intolerances.join(', ')}` : ''}
+${(profile as any).disliked_foods ? `Não come: ${(profile as any).disliked_foods}` : ''}
+${(profile as any).available_foods ? `ALIMENTOS DISPONÍVEIS AGORA NA CASA DO ALUNO (BASEIE O PLANO NISSO SEMPRE QUE POSSÍVEL): ${(profile as any).available_foods}` : ''}
 
 REGRAS DO PLANO DE TREINO:
 - Iniciante: 3 dias, 2-3 exercícios por grupo, básicos
@@ -245,6 +255,8 @@ REGRAS DO PLANO NUTRICIONAL:
 - Com quantidades reais: "150g frango grelhado", "200g arroz integral cozido", "2 ovos inteiros"
 - Dividido por refeições: Café da manhã, Almoço, Jantar, Lanches, Pré-treino, Pós-treino
 - Adequado ao orçamento e preferências alimentares informadas
+- PRIORIZE os alimentos que o aluno já tem disponível em casa (se informado) — monte a maior parte do plano em torno deles
+- Respeite intolerâncias e alimentos que o aluno não come
 - Total de calorias próximo de ${tdee}kcal
 
 Retorne JSON: { "training_plan": "markdown detalhado", "nutrition_plan": "markdown com quantidades", "week_protocol": {"Segunda": "...", "Terça": "..."}, "nutrition_schedule": { "target_calories": ${tdee}, "target_protein": ${Math.round(profile.weight * 2.2)}, "target_carbs": ${Math.round(profile.weight * 3)}, "target_fat": ${Math.round(profile.weight * 0.8)} }, "motivational_message": "mensagem personalizada chamando de campeão/campeã" }`
@@ -288,6 +300,9 @@ export async function chatWithCoach(params: {
   systemPrompt += '- Nome: ' + (profile.name || 'Atleta') + ' | Objetivo: ' + profile.objective + ' | Nível: ' + profile.training_level + '\n'
   systemPrompt += '- Peso: ' + profile.weight + 'kg | Altura: ' + profile.height + 'cm | Idade: ' + profile.age + ' anos\n'
   systemPrompt += '- Dieta: ' + profile.current_diet + ' | Saúde: ' + (profile.health_conditions || 'sem restrições') + '\n'
+  if ((profile as any).available_foods) systemPrompt += '- Alimentos disponíveis em casa agora: ' + (profile as any).available_foods + '\n'
+  if ((profile as any).food_intolerances?.length) systemPrompt += '- Intolerâncias/alergias: ' + (profile as any).food_intolerances.join(', ') + '\n'
+  if ((profile as any).disliked_foods) systemPrompt += '- Não come: ' + (profile as any).disliked_foods + '\n'
   if (analysisContext) systemPrompt += '\nANÁLISE CORPORAL:\n' + analysisContext
   if (nutritionContext) systemPrompt += '\nMETAS NUTRICIONAIS:\n' + nutritionContext
   if (profile.training_plan) systemPrompt += '\nPLANO ATUAL:\n' + profile.training_plan.slice(0, 600)

@@ -38,6 +38,7 @@ export interface Database {
           favorite_carbs: string[] | null
           food_intolerances: string[] | null
           disliked_foods: string | null
+          available_foods: string | null
           meals_per_day: string | null
           training_plan: string | null
           nutrition_plan: string | null
