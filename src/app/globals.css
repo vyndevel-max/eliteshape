@@ -1,0 +1,442 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   DESIGN TOKENS
+============================================================ */
+:root {
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --red: #E8002D;
+  --red-dark: #B8001F;
+  --red-glow: rgba(232, 0, 45, 0.2);
+  --black: #080808;
+  --surface: #111111;
+  --surface-2: #1A1A1A;
+  --border: #252525;
+  --border-subtle: #1C1C1C;
+  --muted: #666666;
+  --text: #E8E8E8;
+  --text-dim: #999999;
+
+  /* Secondary accents */
+  --gold: #D4AF37;
+  --gold-glow: rgba(212, 175, 55, 0.18);
+  --green: #00D97E;
+  --green-glow: rgba(0, 217, 126, 0.18);
+  --blue: #4DA6FF;
+}
+
+/* ============================================================
+   BASE
+============================================================ */
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--black);
+  color: var(--text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   TYPOGRAPHY
+============================================================ */
+.font-display { font-family: var(--font-display); }
+.font-mono { font-family: var(--font-mono); }
+
+/* ============================================================
+   SCROLLBAR
+============================================================ */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--black); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* ============================================================
+   GLASS CARD SYSTEM
+============================================================ */
+.glass {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(12px);
+}
+
+.glass-hover {
+  transition: border-color 200ms, background 200ms;
+}
+
+.glass-hover:hover {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.1);
+}
+
+/* ============================================================
+   SURFACE SYSTEM
+============================================================ */
+.surface { background: var(--surface); border: 1px solid var(--border-subtle); }
+.surface-2 { background: var(--surface-2); border: 1px solid var(--border); }
+
+/* ============================================================
+   BUTTON SYSTEM
+============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 6px;
+  transition: all 150ms ease;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+.btn-primary {
+  background: var(--red);
+  color: #fff;
+  padding: 12px 24px;
+  font-size: 14px;
+  box-shadow: 0 0 30px -8px var(--red-glow);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--red-dark);
+  box-shadow: 0 0 40px -6px rgba(232,0,45,0.4);
+}
+
+.btn-secondary {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--text);
+  padding: 12px 24px;
+  font-size: 14px;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.14);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-dim);
+  padding: 10px 16px;
+  font-size: 13px;
+}
+
+.btn-ghost:hover:not(:disabled) {
+  color: var(--text);
+  background: rgba(255,255,255,0.04);
+}
+
+.btn-sm { padding: 8px 16px; font-size: 12px; }
+.btn-lg { padding: 16px 32px; font-size: 16px; }
+
+/* ============================================================
+   INPUT SYSTEM
+============================================================ */
+.input {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  transition: border-color 150ms;
+  outline: none;
+  appearance: none;
+}
+
+.input::placeholder { color: var(--muted); }
+
+.input:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(232,0,45,0.12);
+}
+
+.input-label {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+/* ============================================================
+   SELECT
+============================================================ */
+select.input {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+}
+
+select.input option { background: var(--surface-2); color: var(--text); }
+
+/* ============================================================
+   DIVIDERS / ACCENTS
+============================================================ */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+.accent-line {
+  width: 32px;
+  height: 2px;
+  background: var(--red);
+  border-radius: 1px;
+}
+
+/* ============================================================
+   STAT CARD
+============================================================ */
+.stat-value {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.stat-label {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ============================================================
+   PROGRESS BAR
+============================================================ */
+.progress-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--red);
+  transition: width 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================================
+   SHIMMER LOADING
+============================================================ */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 25%,
+    rgba(255,255,255,0.08) 37%,
+    rgba(255,255,255,0.04) 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ============================================================
+   MARKDOWN PROSE
+============================================================ */
+.prose-dark {
+  color: var(--text);
+  line-height: 1.7;
+  font-size: 15px;
+}
+
+.prose-dark h1, .prose-dark h2, .prose-dark h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #fff;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose-dark h1 { font-size: 1.6em; }
+.prose-dark h2 { font-size: 1.3em; color: var(--red); }
+.prose-dark h3 { font-size: 1.1em; color: var(--text); }
+
+.prose-dark p { margin-bottom: 1em; }
+.prose-dark strong { color: #fff; font-weight: 600; }
+.prose-dark em { color: var(--text-dim); }
+
+.prose-dark ul, .prose-dark ol {
+  padding-left: 1.2em;
+  margin-bottom: 1em;
+}
+
+.prose-dark li {
+  margin-bottom: 0.3em;
+  color: var(--text-dim);
+}
+
+.prose-dark li::marker { color: var(--red); }
+
+.prose-dark code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: rgba(232,0,45,0.1);
+  color: var(--red);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+/* ============================================================
+   NOISE TEXTURE OVERLAY
+============================================================ */
+.noise-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* ============================================================
+   GLOW EFFECTS
+============================================================ */
+.glow-red { box-shadow: 0 0 40px -10px rgba(232,0,45,0.5); }
+
+/* ============================================================
+   ANIMATION UTILITIES
+============================================================ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-up {
+  animation: fadeUp 400ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Stagger children */
+.stagger > * { animation: fadeUp 400ms cubic-bezier(0.4, 0, 0.2, 1) forwards; opacity: 0; }
+.stagger > *:nth-child(1) { animation-delay: 50ms; }
+.stagger > *:nth-child(2) { animation-delay: 100ms; }
+.stagger > *:nth-child(3) { animation-delay: 150ms; }
+.stagger > *:nth-child(4) { animation-delay: 200ms; }
+.stagger > *:nth-child(5) { animation-delay: 250ms; }
+.stagger > *:nth-child(6) { animation-delay: 300ms; }
+
+/* ============================================================
+   RESPONSIVE LAYOUT HELPERS
+============================================================ */
+.sidebar-width { width: 260px; }
+
+@media (max-width: 1024px) {
+  .sidebar-width { width: 72px; }
+}
+
+/* ============================================================
+   CARD INTERACTIONS — lift on hover
+============================================================ */
+.card-lift {
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1), border-color 220ms, box-shadow 220ms;
+}
+.card-lift:hover {
+  transform: translateY(-3px);
+  border-color: rgba(232, 0, 45, 0.25);
+  box-shadow: 0 12px 32px -16px rgba(232, 0, 45, 0.25);
+}
+
+/* ============================================================
+   RADIAL PROGRESS RING
+============================================================ */
+.radial-ring {
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+.radial-ring circle {
+  fill: none;
+  stroke-linecap: round;
+}
+
+/* ============================================================
+   SCAN LINE (analysis loading)
+============================================================ */
+@keyframes scanline {
+  0% { transform: translateY(-100%); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+.scan-line {
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--red), transparent);
+  box-shadow: 0 0 12px var(--red);
+  animation: scanline 1.8s ease-in-out infinite;
+}
+
+/* ============================================================
+   GOLD / GREEN VARIANTS
+============================================================ */
+.glow-gold { box-shadow: 0 0 40px -10px rgba(212, 175, 55, 0.45); }
+.glow-green { box-shadow: 0 0 40px -10px rgba(0, 217, 126, 0.45); }
+
+.badge-gold {
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  color: var(--gold);
+}
+.badge-green {
+  background: rgba(0, 217, 126, 0.1);
+  border: 1px solid rgba(0, 217, 126, 0.25);
+  color: var(--green);
+}
+
+/* ============================================================
+   DOT GRID BACKDROP (subtle texture for hero sections)
+============================================================ */
+.dot-grid {
+  background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* ============================================================
+   SECTION ENTRANCE
+============================================================ */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+.scale-in { animation: scaleIn 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards; }
