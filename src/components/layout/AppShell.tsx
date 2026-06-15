@@ -17,6 +17,7 @@ import AdminPanel from '@/components/features/admin/AdminPanel'
 import OnboardingQuiz from '@/components/features/onboarding/OnboardingQuiz'
 import ChatPanel from '@/components/features/chat/ChatPanel'
 import DashboardPanel from '@/components/features/dashboard/DashboardPanel'
+import ForgeVoiceAssistant from '@/components/features/voice/ForgeVoiceAssistant'
 
 // ============================================================
 // SVG NAV ICONS
@@ -329,6 +330,9 @@ export default function AppShell({ initialProfile }: AppShellProps) {
           })}
         </div>
       </nav>
+
+      {/* Forge AI floating voice assistant (hidden on the Forge AI chat tab itself) */}
+      {profile && activeTab !== 'chat' && <ForgeVoiceAssistant profile={profile} />}
     </div>
   )
 }

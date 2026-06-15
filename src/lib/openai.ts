@@ -250,6 +250,8 @@ REGRAS DO PLANO DE TREINO:
 - Adapte para lesões/condições de saúde informadas
 - Use dias da semana em PT: Segunda-feira, Terça-feira, etc
 - Chame de campeão/campeã na mensagem motivacional
+- VARIEDADE OBRIGATÓRIA: este plano é PARA ESTE ALUNO ESPECÍFICO — não repita sempre o mesmo "pacote padrão" (supino reto, rosca direta, puxada alta...). Escolha variações específicas de acordo com objetivo, nível e rotina (ex: supino inclinado com halteres, crucifixo no cabo, remada cavalinho, elevação pélvica, afundo búlgaro, face pull) para que o plano pareça desenhado sob medida, não genérico
+- Considere a rotina semanal e o orçamento informados para escolher exercícios viáveis (equipamentos disponíveis vs casa/academia simples)
 
 REGRAS DO PLANO NUTRICIONAL:
 - Com quantidades reais: "150g frango grelhado", "200g arroz integral cozido", "2 ovos inteiros"
@@ -280,8 +282,9 @@ export async function chatWithCoach(params: {
   lastAnalysis?: string
   analysisContext?: string
   nutritionContext?: string
+  progressContext?: string
 }): Promise<string> {
-  const { messages, profile, language, lastAnalysis, analysisContext, nutritionContext } = params
+  const { messages, profile, language, lastAnalysis, analysisContext, nutritionContext, progressContext } = params
   const lang = language === 'pt' ? 'pt-BR' : 'en-US'
 
   const chatPersonality: Record<string, string> = {
@@ -296,6 +299,7 @@ export async function chatWithCoach(params: {
   systemPrompt += chatTone + '\n'
   systemPrompt += 'REGRAS: linguagem simples. Máx 3 parágrafos curtos. Só fale de fitness/nutrição.\n'
   systemPrompt += 'Use os dados do atleta para respostas PERSONALIZADAS.\n'
+  systemPrompt += 'Você é a Forge AI: não apenas registra dados, INTERPRETA. Se notar uma mudança no acompanhamento (peso subindo/caindo, queda de consistência nos treinos, refeições puladas), comente isso proativamente e sugira um ajuste concreto no treino, na dieta ou na meta — mesmo que o usuário não tenha perguntado diretamente sobre isso.\n'
   systemPrompt += '\nPERFIL:\n'
   systemPrompt += '- Nome: ' + (profile.name || 'Atleta') + ' | Objetivo: ' + profile.objective + ' | Nível: ' + profile.training_level + '\n'
   systemPrompt += '- Peso: ' + profile.weight + 'kg | Altura: ' + profile.height + 'cm | Idade: ' + profile.age + ' anos\n'
@@ -307,6 +311,7 @@ export async function chatWithCoach(params: {
   if (nutritionContext) systemPrompt += '\nMETAS NUTRICIONAIS:\n' + nutritionContext
   if (profile.training_plan) systemPrompt += '\nPLANO ATUAL:\n' + profile.training_plan.slice(0, 600)
   if (lastAnalysis && !analysisContext) systemPrompt += '\nANÁLISE ANTERIOR: ' + lastAnalysis.slice(0, 500)
+  if (progressContext) systemPrompt += '\nACOMPANHAMENTO RECENTE (use para personalizar e sugerir ajustes):\n' + progressContext
 
   const response = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
@@ -391,3 +396,100 @@ export function calculateTDEE(profile: {
 }
 
 // Note: nutrition quiz fields are stored in profiles table via supabase.update()
+
+// ============================================================
+// EXERCISE SWAP (structured replacement suggestion)
+// ============================================================
+export async function suggestExerciseSwap(params: {
+  exerciseName: string
+  day: string
+  reason: string
+  profile: Record<string, any>
+}): Promise<{ name: string; sets_target: string; reason: string }> {
+  const { exerciseName, day, reason, profile } = params
+
+  const systemPrompt = `Você é a Forge AI, especialista em treino. O aluno quer trocar UM exercício do plano dele.
+Responda APENAS com um objeto JSON válido, sem markdown, sem texto fora do JSON, no formato exato:
+{"name": "Nome do novo exercício", "sets_target": "4x10-12", "reason": "Por que essa troca faz sentido (1 frase curta, direta, em pt-BR)"}
+
+Regras:
+- Sugira APENAS UM exercício substituto (não uma lista).
+- Deve trabalhar o(s) mesmo(s) grupo muscular(es) e ter propósito equivalente ao exercício original.
+- "sets_target" deve seguir o formato "NxM" ou "NxM-P" (ex: "4x10-12", "3x12").
+- Considere o motivo dado pelo aluno (equipamento indisponível, dor, preferência, etc).
+- Nível do aluno: ${profile.training_level || 'intermediário'}. Objetivo: ${profile.objective || 'geral'}.
+${profile.health_conditions ? `- Condições de saúde/lesões: ${profile.health_conditions}` : ''}`
+
+  const userPrompt = `Exercício atual a substituir: "${exerciseName}" (treino de ${day}).
+Motivo da troca: ${reason || 'não tenho esse equipamento disponível'}.`
+
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt },
+    ],
+    max_tokens: 200,
+    temperature: 0.7,
+    response_format: { type: 'json_object' },
+  })
+
+  const raw = response.choices[0].message.content ?? '{}'
+  try {
+    const parsed = JSON.parse(raw)
+    return {
+      name: parsed.name || exerciseName,
+      sets_target: parsed.sets_target || '3x12',
+      reason: parsed.reason || '',
+    }
+  } catch {
+    return { name: exerciseName, sets_target: '3x12', reason: '' }
+  }
+}
+
+// ============================================================
+// VOICE COMMAND (Forge AI floating assistant - intent routing)
+// ============================================================
+export async function voiceCommand(params: {
+  text: string
+  profile: Record<string, any>
+}): Promise<{ intent: 'log_meal' | 'navigate' | 'chat'; mealText?: string; target?: string; reply: string }> {
+  const { text, profile } = params
+
+  const systemPrompt = `Você é a Forge AI, assistente de voz do app FORGE. O usuário falou um comando por voz. Classifique a intenção e responda APENAS com JSON válido, sem markdown, no formato exato:
+{"intent": "log_meal" | "navigate" | "chat", "mealText": "...", "target": "...", "reply": "..."}
+
+REGRAS:
+- "log_meal": o usuário está dizendo o que comeu/bebeu (ex: "comi 150g de frango com arroz", "acabei de tomar um whey"). Preencha "mealText" com a descrição da refeição. "reply" = confirmação curta e motivadora (ex: "Anotado! Registrando seu frango com arroz.").
+- "navigate": o usuário quer ir para uma tela (ex: "qual treino de hoje", "me mostra minha dieta", "ver meu perfil", "abrir diagnóstico"). Preencha "target" com um destes valores EXATOS: "dashboard" (Hoje/Início), "training" (Treino), "nutrition" (Nutrição), "coach" (Diagnóstico Forge), "profile" (Perfil). "reply" = frase curta confirmando a navegação (ex: "Aqui está seu treino de hoje!").
+- "chat": qualquer outra pergunta sobre treino, nutrição, progresso, dúvidas gerais. "reply" = resposta completa, útil, no tom Forge (direto, motivador, máx 3 frases curtas).
+- "mealText" e "target" só são necessários para suas respectivas intents; pode omitir ou deixar vazio nos outros casos.
+- SEMPRE responda em português do Brasil.
+
+PERFIL DO ALUNO:
+- Nome: ${profile.name || 'Atleta'} | Objetivo: ${profile.objective || 'geral'} | Nível: ${profile.training_level || 'intermediário'}`
+
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: text },
+    ],
+    max_tokens: 300,
+    temperature: 0.5,
+    response_format: { type: 'json_object' },
+  })
+
+  const raw = response.choices[0].message.content ?? '{}'
+  try {
+    const parsed = JSON.parse(raw)
+    return {
+      intent: parsed.intent === 'log_meal' || parsed.intent === 'navigate' ? parsed.intent : 'chat',
+      mealText: parsed.mealText || undefined,
+      target: parsed.target || undefined,
+      reply: parsed.reply || 'Pode repetir? Não entendi bem.',
+    }
+  } catch {
+    return { intent: 'chat', reply: 'Pode repetir? Não entendi bem.' }
+  }
+}

@@ -20,7 +20,7 @@ const DAYS_PT: Record<string, string> = { Monday:'Segunda', Tuesday:'Terça', We
 const DAY_ORDER = ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo']
 
 interface SetLog { reps: string; weight: string }
-interface ExerciseData { name: string; sets_target: string; sets: SetLog[]; swapOpen: boolean; swapReason: string; swapResult: string; swapLoading: boolean; saved: boolean }
+interface ExerciseData { name: string; sets_target: string; sets: SetLog[]; swapOpen: boolean; swapReason: string; swapResult: string; swapSuggestion: { name: string; sets_target: string; reason: string } | null; swapLoading: boolean; saved: boolean }
 interface DayData { label: string; exercises: ExerciseData[] }
 
 interface TrainingPanelProps { profile: Profile; onProfileUpdate: (data: Partial<Profile>) => void }
@@ -104,6 +104,70 @@ function parseTrainingPlan(plan: string): Record<string, string[]> {
 }
 
 
+// Find the line index in the raw plan markdown for a given exercise under a given day,
+// by replicating the same detection logic as parseTrainingPlan, so we can replace it in-place.
+function findExerciseLineIndex(plan: string, targetDay: string, targetName: string): number {
+  const dayPatterns = [
+    { regex: /segunda[\-\s]*feira/i, key: 'Segunda' },
+    { regex: /ter[cç]a[\-\s]*feira/i, key: 'Terça' },
+    { regex: /quarta[\-\s]*feira/i, key: 'Quarta' },
+    { regex: /quinta[\-\s]*feira/i, key: 'Quinta' },
+    { regex: /sexta[\-\s]*feira/i, key: 'Sexta' },
+    { regex: /s[aá]bado/i, key: 'Sábado' },
+    { regex: /domingo/i, key: 'Domingo' },
+    { regex: /monday/i, key: 'Segunda' },
+    { regex: /tuesday/i, key: 'Terça' },
+    { regex: /wednesday/i, key: 'Quarta' },
+    { regex: /thursday/i, key: 'Quinta' },
+    { regex: /friday/i, key: 'Sexta' },
+    { regex: /saturday/i, key: 'Sábado' },
+    { regex: /sunday/i, key: 'Domingo' },
+  ]
+  const skipWords = ['descanso', 'rest', 'recuperação', 'active recovery', 'plano', 'protocolo', 'semana:', 'foco:', 'objetivo:', 'notas:', 'obs:', 'dica:', 'importante:']
+  const lines = plan.split('\n')
+  let currentDay: string | null = null
+
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i].trim()
+    if (!trimmed) continue
+    const cleanLine = trimmed.replace(/^#+\s*/, '').replace(/\*\*/g, '').trim()
+
+    let foundDay = false
+    for (const { regex, key } of dayPatterns) {
+      if (regex.test(cleanLine) && cleanLine.length < 80) {
+        currentDay = key
+        foundDay = true
+        break
+      }
+    }
+    if (foundDay) continue
+    if (!currentDay || currentDay !== targetDay) continue
+    if (/^#{1,6}\s/.test(trimmed)) continue
+
+    const lower = cleanLine.toLowerCase()
+    if (skipWords.some(w => lower === w || lower.startsWith(w))) continue
+    if (cleanLine.length < 4 || cleanLine.length > 100) continue
+    if (!/[a-zA-ZÀ-ú]{3,}/.test(cleanLine)) continue
+
+    const hasSets = /\d+\s*[x×]\s*\d+/.test(cleanLine)
+    const hasBullet = /^[-*•]/.test(trimmed)
+    const hasNumber = /^\d+[.)]/.test(trimmed)
+    const looksLikeExercise = /^[A-ZÀ-Ú][a-záéíóúâêîôûãõàèìòùç]/.test(cleanLine) && !cleanLine.endsWith(':')
+
+    if (hasSets || hasBullet || hasNumber || looksLikeExercise) {
+      let name = cleanLine.replace(/^[-*•\d.)\s]+/, '').trim()
+      const setsMatch = cleanLine.match(/(\d+)\s*[x×]\s*(\d+[-–]?\d*)/)
+      if (setsMatch) {
+        const baseName = name.replace(/[:\-–]?\s*\d+\s*[x×]\s*\d+[-–]?\d*.*$/, '').trim()
+        name = baseName + ' — ' + setsMatch[0].replace(/\s/g, '')
+      }
+      if (name === targetName) return i
+    }
+  }
+  return -1
+}
+
+
 function parseWeekSummary(plan: string): Record<string, string> {
   const result: Record<string, string> = {}
   const lines = plan.split('\n')
@@ -156,6 +220,7 @@ function makeExerciseData(name: string): ExerciseData {
     swapOpen: false,
     swapReason: '',
     swapResult: '',
+    swapSuggestion: null,
     swapLoading: false,
     saved: false,
   }
@@ -287,23 +352,50 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
   const requestSwap = async (day: string, exIdx: number) => {
     const ex = dayData[day]?.exercises[exIdx]
     if (!ex) return
-    updateExercise(day, exIdx, { swapLoading: true, swapResult: '' })
+    updateExercise(day, exIdx, { swapLoading: true, swapResult: '', swapSuggestion: null })
     try {
-      const res = await fetch('/api/ai/chat', {
+      const res = await fetch('/api/ai/swap', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: [{
-            role: 'user',
-            content: `Preciso de alternativas para o exercício "${ex.name}" no dia ${day}. Motivo: ${ex.swapReason || 'não tenho esse equipamento na minha academia'}. Me dê 2-3 alternativas com séries e repetições.`
-          }],
-          profile
+          exerciseName: ex.name,
+          day,
+          reason: ex.swapReason || 'não tenho esse equipamento na minha academia',
+          profile,
         })
       })
       const data = await res.json()
-      updateExercise(day, exIdx, { swapResult: data.reply, swapLoading: false })
+      updateExercise(day, exIdx, { swapSuggestion: { name: data.name, sets_target: data.sets_target, reason: data.reason }, swapLoading: false })
     } catch {
       updateExercise(day, exIdx, { swapLoading: false })
       toast.error('Erro ao buscar alternativa')
+    }
+  }
+
+  const applySwap = async (day: string, exIdx: number) => {
+    const ex = dayData[day]?.exercises[exIdx]
+    const suggestion = ex?.swapSuggestion
+    if (!ex || !suggestion || !profile.training_plan) return
+
+    const newName = `${suggestion.name} — ${suggestion.sets_target.replace(/\s/g, '')}`
+    const lineIdx = findExerciseLineIndex(profile.training_plan, day, ex.name)
+
+    if (lineIdx === -1) {
+      toast.error('Não consegui localizar o exercício no plano. Tente regenerar o plano.')
+      return
+    }
+
+    const lines = profile.training_plan.split('\n')
+    const indentMatch = lines[lineIdx].match(/^(\s*)/)
+    const indent = indentMatch ? indentMatch[1] : ''
+    lines[lineIdx] = `${indent}- ${suggestion.name} — ${suggestion.sets_target}`
+    const newPlan = lines.join('\n')
+
+    try {
+      await supabase.from('profiles').update({ training_plan: newPlan } as any).eq('id', profile.id)
+      onProfileUpdate({ training_plan: newPlan })
+      toast.success(`Exercício substituído por ${suggestion.name}!`)
+    } catch {
+      toast.error('Erro ao salvar a troca')
     }
   }
 
@@ -441,7 +533,7 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
                             title="Ver vídeo de execução no YouTube">
                             <IconPlay /><span className="hidden sm:inline">Ver execução</span>
                           </a>
-                          <button onClick={() => updateExercise(selectedDay, exIdx, { swapOpen: !ex.swapOpen, swapResult: '' })}
+                          <button onClick={() => updateExercise(selectedDay, exIdx, { swapOpen: !ex.swapOpen, swapResult: '', swapSuggestion: null })}
                             className={`flex items-center gap-1 text-xs border rounded-lg px-2.5 py-1.5 transition-all ${ex.swapOpen ? 'text-[#FF3B30] border-[#FF3B30]/30 bg-[#FF3B30]/5' : 'text-[#555] border-[#222222] hover:border-[#333] hover:text-[#999]'}`}>
                             <IconSwap /><span>Trocar</span>
                           </button>
@@ -452,8 +544,8 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
                       <AnimatePresence>
                         {ex.swapOpen && (
                           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
-                            <div className="px-5 pb-4 border-t border-[#222222] pt-4">
-                              {!ex.swapResult ? (
+                            <div className="px-4 sm:px-5 pb-4 border-t border-[#222222] pt-4">
+                              {!ex.swapSuggestion ? (
                                 <div className="space-y-3">
                                   <p className="text-xs text-[#666]">Por que precisa trocar?</p>
                                   <textarea
@@ -465,16 +557,24 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
                                   />
                                   <button onClick={() => requestSwap(selectedDay, exIdx)} disabled={ex.swapLoading}
                                     className="btn btn-primary btn-sm w-full">
-                                    {ex.swapLoading ? <><IconLoader />Buscando alternativas...</> : 'Pedir alternativa ao coach'}
+                                    {ex.swapLoading ? <><IconLoader />Buscando alternativa...</> : 'Pedir alternativa à Forge AI'}
                                   </button>
                                 </div>
                               ) : (
-                                <div>
-                                  <div className="prose-dark text-sm mb-3">
-                                    <Markdown>{ex.swapResult}</Markdown>
+                                <div className="space-y-3">
+                                  <div className="rounded-xl bg-[#161616] border border-[#FF6A00]/25 p-4">
+                                    <p className="text-[10px] font-black uppercase tracking-widest forge-gradient-text mb-1" style={{ fontFamily: 'var(--font-display)' }}>Sugestão da Forge AI</p>
+                                    <p className="text-white font-semibold text-sm">{ex.swapSuggestion.name} <span className="text-[#999] font-normal">— {ex.swapSuggestion.sets_target}</span></p>
+                                    {ex.swapSuggestion.reason && <p className="text-[#777] text-xs mt-1.5">{ex.swapSuggestion.reason}</p>}
                                   </div>
-                                  <button onClick={() => updateExercise(selectedDay, exIdx, { swapResult: '', swapReason: '' })}
-                                    className="text-xs text-[#555] hover:text-[#999] transition-colors">← Perguntar novamente</button>
+                                  <div className="flex gap-2">
+                                    <button onClick={() => applySwap(selectedDay, exIdx)} className="btn btn-primary btn-sm flex-1">
+                                      <IconCheck />Substituir exercício
+                                    </button>
+                                    <button onClick={() => requestSwap(selectedDay, exIdx)} disabled={ex.swapLoading} className="btn btn-ghost btn-sm">
+                                      {ex.swapLoading ? <IconLoader /> : 'Tentar outra'}
+                                    </button>
+                                  </div>
                                 </div>
                               )}
                             </div>
