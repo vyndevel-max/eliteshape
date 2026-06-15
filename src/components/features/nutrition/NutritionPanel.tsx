@@ -17,7 +17,7 @@ const IconWater = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="no
 const IconCamera = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
 const IconText = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M17 6.1H3M21 12.1H3M15.1 18H3"/></svg>
 
-const MACRO_COLORS = { protein: '#E8002D', carbs: '#F59E0B', fat: '#6366F1' }
+const MACRO_COLORS = { protein: '#FF3B30', carbs: '#F59E0B', fat: '#6366F1' }
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack', 'other']
 const MEAL_LABELS: Record<string, string> = { breakfast: 'Café', lunch: 'Almoço', dinner: 'Jantar', snack: 'Lanche', other: 'Outro' }
 const WATER_OPTIONS = [150, 250, 350, 500]
@@ -113,7 +113,7 @@ function NutritionPlanView({ plan, profile }: { plan: string | null; profile: an
   )
 
   if (sections.length === 0) return (
-    <div className="max-w-3xl rounded-2xl bg-[#111] border border-[#1C1C1C] p-8 prose-dark">
+    <div className="max-w-3xl rounded-2xl bg-[#161616] border border-[#222222] p-8 prose-dark">
       <Markdown>{plan}</Markdown>
     </div>
   )
@@ -121,9 +121,9 @@ function NutritionPlanView({ plan, profile }: { plan: string | null; profile: an
   return (
     <div className="max-w-3xl space-y-4">
       {sections.map((section, si) => (
-        <div key={si} className="rounded-2xl bg-[#111] border border-[#1C1C1C] overflow-hidden">
-          <div className="px-6 py-4 border-b border-[#1C1C1C]">
-            <p className="font-black uppercase tracking-widest text-sm text-[#E8002D]" style={{ fontFamily: 'var(--font-display)' }}>{section.title}</p>
+        <div key={si} className="rounded-2xl bg-[#161616] border border-[#222222] overflow-hidden">
+          <div className="px-6 py-4 border-b border-[#222222]">
+            <p className="font-black uppercase tracking-widest text-sm text-[#FF3B30]" style={{ fontFamily: 'var(--font-display)' }}>{section.title}</p>
           </div>
           <div className="divide-y divide-[#0D0D0D]">
             {section.foods.map((food, fi) => (
@@ -138,7 +138,7 @@ function NutritionPlanView({ plan, profile }: { plan: string | null; profile: an
                     <span className="text-white text-sm truncate">{food.name}</span>
                   </div>
                   <button onClick={() => updateFood(si, fi, { swapOpen: !food.swapOpen, swapResult: '', swapReason: '' })}
-                    className={`ml-4 flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-all flex-shrink-0 ${food.swapOpen ? 'text-[#F59E0B] border-[#F59E0B]/30 bg-[#F59E0B]/5' : 'text-[#444] border-[#1C1C1C] hover:border-[#333] hover:text-[#999]'}`}>
+                    className={`ml-4 flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-all flex-shrink-0 ${food.swapOpen ? 'text-[#F59E0B] border-[#F59E0B]/30 bg-[#F59E0B]/5' : 'text-[#444] border-[#222222] hover:border-[#333] hover:text-[#999]'}`}>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M7 16V4m0 0L3 8m4-4 4 4"/><path d="M17 8v12m0 0 4-4m-4 4-4-4"/></svg>
                     Trocar
                   </button>
@@ -149,7 +149,7 @@ function NutritionPlanView({ plan, profile }: { plan: string | null; profile: an
                       <div className="space-y-2">
                         <textarea value={food.swapReason} onChange={e => updateFood(si, fi, { swapReason: e.target.value })}
                           placeholder="Por que quer trocar? (ex: não tenho, não gosto, sou alérgico...)"
-                          rows={2} className="w-full bg-[#111] border border-[#1C1C1C] rounded-xl px-4 py-3 text-white text-xs placeholder-[#333] resize-none focus:outline-none focus:border-[#F59E0B]/40" />
+                          rows={2} className="w-full bg-[#161616] border border-[#222222] rounded-xl px-4 py-3 text-white text-xs placeholder-[#333] resize-none focus:outline-none focus:border-[#F59E0B]/40" />
                         <button onClick={() => requestSwap(si, fi)} disabled={food.swapLoading}
                           className="w-full py-2 rounded-xl bg-[#F59E0B]/10 border border-[#F59E0B]/30 text-[#F59E0B] text-xs font-bold hover:bg-[#F59E0B]/20 transition-all disabled:opacity-40">
                           {food.swapLoading ? 'Buscando alternativas...' : 'Pedir alternativa ao coach'}
@@ -269,21 +269,21 @@ export default function NutritionPanel({ profile, onProfileUpdate }: NutritionPa
           toast.success('Preferências salvas!')
         }} />
       )}
-      <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#1C1C1C] flex items-center justify-between flex-wrap gap-3">
+      <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#222222] flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="font-display text-3xl font-black text-white uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>NUTRIÇÃO</h1>
           <p className="text-[#555] text-sm mt-0.5">Rastreamento de macros com IA</p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           <button onClick={() => setShowQuiz(true)}
-            className="flex items-center gap-2 text-xs text-[#555] border border-[#1C1C1C] hover:border-[#F59E0B]/40 hover:text-[#F59E0B] rounded-lg px-3 py-2 transition-all">
+            className="flex items-center gap-2 text-xs text-[#555] border border-[#222222] hover:border-[#F59E0B]/40 hover:text-[#F59E0B] rounded-lg px-3 py-2 transition-all">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
             Preferências
           </button>
-          <div className="flex gap-1 bg-[#111] border border-[#1C1C1C] rounded-lg p-1">
+          <div className="flex gap-1 bg-[#161616] border border-[#222222] rounded-lg p-1">
             {(['log', 'plan'] as const).map(v => (
               <button key={v} onClick={() => setActiveView(v)}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${v === activeView ? 'bg-[#E8002D] text-white' : 'text-[#666] hover:text-[#999]'}`}>
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${v === activeView ? 'bg-[#FF3B30] text-white' : 'text-[#666] hover:text-[#999]'}`}>
                 {v === 'log' ? 'Diário' : 'Plano IA'}
               </button>
             ))}
@@ -297,16 +297,16 @@ export default function NutritionPanel({ profile, onProfileUpdate }: NutritionPa
             <div className="space-y-6">
 
               {/* Add meal card */}
-              <div className="rounded-2xl bg-[#111] border border-[#1C1C1C] p-6">
+              <div className="rounded-2xl bg-[#161616] border border-[#222222] p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <p className="text-xs font-black uppercase tracking-widest text-[#E8002D]" style={{ fontFamily: 'var(--font-display)' }}>REGISTRAR REFEIÇÃO</p>
-                  <div className="flex gap-1 bg-[#0A0A0A] border border-[#1C1C1C] rounded-lg p-1">
+                  <p className="text-xs font-black uppercase tracking-widest text-[#FF3B30]" style={{ fontFamily: 'var(--font-display)' }}>REGISTRAR REFEIÇÃO</p>
+                  <div className="flex gap-1 bg-[#0A0A0A] border border-[#222222] rounded-lg p-1">
                     <button onClick={() => { setInputMode('text'); setPhotoPreview(null) }}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${inputMode === 'text' ? 'bg-[#E8002D] text-white' : 'text-[#555] hover:text-[#999]'}`}>
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${inputMode === 'text' ? 'bg-[#FF3B30] text-white' : 'text-[#555] hover:text-[#999]'}`}>
                       <IconText /><span>Texto</span>
                     </button>
                     <button onClick={() => photoRef.current?.click()}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${inputMode === 'photo' ? 'bg-[#E8002D] text-white' : 'text-[#555] hover:text-[#999]'}`}>
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${inputMode === 'photo' ? 'bg-[#FF3B30] text-white' : 'text-[#555] hover:text-[#999]'}`}>
                       <IconCamera /><span>Foto</span>
                     </button>
                     <input ref={photoRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handlePhotoSelect} />
@@ -317,7 +317,7 @@ export default function NutritionPanel({ profile, onProfileUpdate }: NutritionPa
                 <div className="flex gap-2 mb-4 flex-wrap">
                   {MEAL_TYPES.map(t => (
                     <button key={t} onClick={() => setMealType(t)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${mealType === t ? 'bg-[#E8002D]/10 border-[#E8002D]/40 text-[#E8002D]' : 'border-[#1C1C1C] text-[#555] hover:border-[#333]'}`}>
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${mealType === t ? 'bg-[#FF3B30]/10 border-[#FF3B30]/40 text-[#FF3B30]' : 'border-[#222222] text-[#555] hover:border-[#333]'}`}>
                       {MEAL_LABELS[t]}
                     </button>
                   ))}
@@ -342,7 +342,7 @@ export default function NutritionPanel({ profile, onProfileUpdate }: NutritionPa
                         ? 'Adicione uma descrição (opcional)...'
                         : 'Descreva o que comeu... Ex: 150g frango grelhado com arroz integral e salada'}
                       rows={3}
-                      className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-xl px-4 py-3 pr-14 text-white text-sm placeholder-[#444] resize-none focus:outline-none focus:border-[#E8002D]/50 transition-colors"
+                      className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-xl px-4 py-3 pr-14 text-white text-sm placeholder-[#444] resize-none focus:outline-none focus:border-[#FF3B30]/50 transition-colors"
                       onKeyDown={e => { if (e.key === 'Enter' && e.ctrlKey) addMeal() }}
                     />
                     <div className="absolute bottom-3 right-3">
@@ -365,25 +365,25 @@ export default function NutritionPanel({ profile, onProfileUpdate }: NutritionPa
               <div className="space-y-3">
                 <p className="text-xs font-black uppercase tracking-widest text-[#444]" style={{ fontFamily: 'var(--font-display)' }}>HOJE — {meals.length} REFEIÇÃO{meals.length !== 1 ? 'ÕES' : ''}</p>
                 {meals.length === 0 ? (
-                  <div className="rounded-2xl bg-[#111] border border-[#1C1C1C] p-8 text-center">
+                  <div className="rounded-2xl bg-[#161616] border border-[#222222] p-8 text-center">
                     <p className="text-[#555] text-sm">Nenhuma refeição registrada hoje</p>
                   </div>
                 ) : meals.map(meal => (
                   <motion.div key={meal.id} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className="rounded-xl bg-[#111] border border-[#1C1C1C] px-5 py-4 flex items-center justify-between group">
+                    className="rounded-xl bg-[#161616] border border-[#222222] px-5 py-4 flex items-center justify-between group">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs text-[#444] border border-[#1C1C1C] rounded px-1.5 py-0.5">{MEAL_LABELS[meal.meal_type || 'other']}</span>
+                        <span className="text-xs text-[#444] border border-[#222222] rounded px-1.5 py-0.5">{MEAL_LABELS[meal.meal_type || 'other']}</span>
                         <span className="font-medium text-white text-sm truncate">{meal.name}</span>
                       </div>
                       <div className="flex gap-3 text-xs text-[#555]">
-                        <span className="text-[#E8002D]">{meal.calories} kcal</span>
+                        <span className="text-[#FF3B30]">{meal.calories} kcal</span>
                         <span>P: {formatNumber(meal.protein || 0)}g</span>
                         <span>C: {formatNumber(meal.carbs || 0)}g</span>
                         <span>G: {formatNumber(meal.fat || 0)}g</span>
                       </div>
                     </div>
-                    <button onClick={() => deleteMeal(meal.id)} className="opacity-0 group-hover:opacity-100 text-[#444] hover:text-[#E8002D] transition-all ml-4 p-1"><IconTrash /></button>
+                    <button onClick={() => deleteMeal(meal.id)} className="opacity-0 group-hover:opacity-100 text-[#444] hover:text-[#FF3B30] transition-all ml-4 p-1"><IconTrash /></button>
                   </motion.div>
                 ))}
               </div>
@@ -392,8 +392,8 @@ export default function NutritionPanel({ profile, onProfileUpdate }: NutritionPa
             {/* Right sidebar */}
             <div className="space-y-6">
               {/* Calories */}
-              <div className="rounded-2xl bg-[#111] border border-[#1C1C1C] p-6">
-                <p className="text-xs font-black uppercase tracking-widest text-[#E8002D] mb-4" style={{ fontFamily: 'var(--font-display)' }}>CALORIAS DO DIA</p>
+              <div className="rounded-2xl bg-[#161616] border border-[#222222] p-6">
+                <p className="text-xs font-black uppercase tracking-widest text-[#FF3B30] mb-4" style={{ fontFamily: 'var(--font-display)' }}>CALORIAS DO DIA</p>
                 <div className="text-center mb-4">
                   <p className="text-4xl font-black text-white" style={{ fontFamily: 'var(--font-display)' }}>{formatNumber(totals.calories)}</p>
                   <p className="text-[#555] text-sm">de {formatNumber(targets.calories)} kcal</p>
@@ -406,9 +406,9 @@ export default function NutritionPanel({ profile, onProfileUpdate }: NutritionPa
               </div>
 
               {/* Water */}
-              <div className="rounded-2xl bg-[#111] border border-[#1C1C1C] p-6">
+              <div className="rounded-2xl bg-[#161616] border border-[#222222] p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <p className="text-xs font-black uppercase tracking-widest text-[#E8002D]" style={{ fontFamily: 'var(--font-display)' }}>HIDRATAÇÃO</p>
+                  <p className="text-xs font-black uppercase tracking-widest text-[#FF3B30]" style={{ fontFamily: 'var(--font-display)' }}>HIDRATAÇÃO</p>
                   <div className="flex items-center gap-1 text-[#4DA6FF]"><IconWater /><span className="text-sm font-bold">{(waterMl / 1000).toFixed(1)}L</span></div>
                 </div>
                 <div className="progress-track mb-4">
@@ -417,7 +417,7 @@ export default function NutritionPanel({ profile, onProfileUpdate }: NutritionPa
                 <div className="grid grid-cols-2 gap-2">
                   {WATER_OPTIONS.map(ml => (
                     <button key={ml} onClick={() => addWater(ml)} disabled={addingWater}
-                      className="py-2 rounded-xl border border-[#1C1C1C] text-sm text-[#666] hover:text-white hover:border-[#4DA6FF]/40 hover:bg-[#4DA6FF]/5 transition-all font-medium">
+                      className="py-2 rounded-xl border border-[#222222] text-sm text-[#666] hover:text-white hover:border-[#4DA6FF]/40 hover:bg-[#4DA6FF]/5 transition-all font-medium">
                       +{ml}ml
                     </button>
                   ))}

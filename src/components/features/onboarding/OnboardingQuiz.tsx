@@ -144,7 +144,7 @@ export default function OnboardingQuiz({ profile, onComplete }: OnboardingQuizPr
       const updateData = { ...form, onboarding_done: true }
       await supabase.from('profiles').update(updateData).eq('id', profile.id)
       onComplete(updateData)
-      toast.success('Perfil configurado! Bem-vindo ao Elite Shape!')
+      toast.success('Perfil configurado! Bem-vindo ao FORGE — vamos forjar sua evolução!')
     } catch { toast.error('Erro ao salvar') } finally { setSaving(false) }
   }
 
@@ -152,14 +152,14 @@ export default function OnboardingQuiz({ profile, onComplete }: OnboardingQuizPr
   const canAdvance = () => current.fields.filter(f => !optional.includes(f.key)).every(f => form[f.key] !== undefined && form[f.key] !== '')
 
   return (
-    <div className="fixed inset-0 bg-[#080808] flex flex-col items-center justify-center z-50 p-4 overflow-y-auto py-8">
+    <div className="fixed inset-0 bg-[#0B0B0B] flex flex-col items-center justify-center z-50 p-4 overflow-y-auto py-8">
       {/* Progress */}
       <div className="w-full max-w-lg mb-8">
         <div className="flex justify-between text-[10px] text-[#333] mb-2 uppercase tracking-widest" style={{ fontFamily: 'var(--font-display)' }}>
           <span>Configuração do Perfil</span><span>{step + 1} / {steps.length}</span>
         </div>
-        <div className="h-0.5 bg-[#111] rounded-full overflow-hidden">
-          <motion.div className="h-full bg-[#E8002D] rounded-full" animate={{ width: `${progress}%` }} transition={{ duration: 0.4 }} />
+        <div className="h-0.5 bg-[#161616] rounded-full overflow-hidden">
+          <motion.div className="h-full bg-[#FF3B30] rounded-full" animate={{ width: `${progress}%` }} transition={{ duration: 0.4 }} />
         </div>
       </div>
 
@@ -179,7 +179,7 @@ export default function OnboardingQuiz({ profile, onComplete }: OnboardingQuizPr
                   <div className="relative">
                     <input type="text" value={form[field.key] || ''} onChange={e => set(field.key, e.target.value)}
                       placeholder={field.placeholder} autoFocus
-                      className="w-full bg-[#0E0E0E] border border-[#1C1C1C] rounded-xl px-5 py-4 pr-16 text-white text-lg placeholder-[#333] focus:outline-none focus:border-[#E8002D]/50 transition-colors" />
+                      className="w-full bg-[#0E0E0E] border border-[#222222] rounded-xl px-5 py-4 pr-16 text-white text-lg placeholder-[#333] focus:outline-none focus:border-[#FF3B30]/50 transition-colors" />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2">
                       <VoiceInputButton size="sm"
                         onResult={text => set(field.key, form[field.key] ? `${form[field.key]} ${text}` : text)} />
@@ -190,7 +190,7 @@ export default function OnboardingQuiz({ profile, onComplete }: OnboardingQuizPr
                   <div className="relative">
                     <input type="number" value={form[field.key] || ''} onChange={e => set(field.key, Number(e.target.value))}
                       placeholder={field.placeholder}
-                      className="w-full bg-[#0E0E0E] border border-[#1C1C1C] rounded-xl px-5 py-4 text-white text-lg placeholder-[#333] focus:outline-none focus:border-[#E8002D]/50 transition-colors pr-16" />
+                      className="w-full bg-[#0E0E0E] border border-[#222222] rounded-xl px-5 py-4 text-white text-lg placeholder-[#333] focus:outline-none focus:border-[#FF3B30]/50 transition-colors pr-16" />
                     {field.unit && <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[#444] text-sm">{field.unit}</span>}
                   </div>
                 )}
@@ -198,7 +198,7 @@ export default function OnboardingQuiz({ profile, onComplete }: OnboardingQuizPr
                   <div className="relative">
                     <textarea value={form[field.key] || ''} onChange={e => set(field.key, e.target.value)}
                       placeholder={field.placeholder} rows={3}
-                      className="w-full bg-[#0E0E0E] border border-[#1C1C1C] rounded-xl px-5 py-4 pr-14 text-white text-sm placeholder-[#333] resize-none focus:outline-none focus:border-[#E8002D]/50 transition-colors" />
+                      className="w-full bg-[#0E0E0E] border border-[#222222] rounded-xl px-5 py-4 pr-14 text-white text-sm placeholder-[#333] resize-none focus:outline-none focus:border-[#FF3B30]/50 transition-colors" />
                     <div className="absolute bottom-3 right-3">
                       <VoiceInputButton size="sm"
                         onResult={text => set(field.key, form[field.key] ? `${form[field.key]} ${text}` : text)} />
@@ -208,7 +208,7 @@ export default function OnboardingQuiz({ profile, onComplete }: OnboardingQuizPr
                 {field.type === 'toggle' && (
                   <div className="flex items-center gap-4">
                     <button onClick={() => set(field.key, !form[field.key])}
-                      className={`relative w-14 h-7 rounded-full transition-colors ${form[field.key] ? 'bg-[#E8002D]' : 'bg-[#1C1C1C]'}`}>
+                      className={`relative w-14 h-7 rounded-full transition-colors ${form[field.key] ? 'bg-[#FF3B30]' : 'bg-[#222222]'}`}>
                       <span className={`absolute top-1.5 w-4 h-4 rounded-full bg-white transition-transform ${form[field.key] ? 'translate-x-8' : 'translate-x-1.5'}`} />
                     </button>
                     <span className="text-[#666] text-sm">{form[field.key] ? 'Sim' : 'Não'}</span>
@@ -216,7 +216,7 @@ export default function OnboardingQuiz({ profile, onComplete }: OnboardingQuizPr
                 )}
                 {field.type === 'select' && (
                   <select value={form[field.key] || ''} onChange={e => set(field.key, e.target.value)}
-                    className="w-full bg-[#0E0E0E] border border-[#1C1C1C] rounded-xl px-5 py-4 text-white text-base focus:outline-none focus:border-[#E8002D]/50 transition-colors">
+                    className="w-full bg-[#0E0E0E] border border-[#222222] rounded-xl px-5 py-4 text-white text-base focus:outline-none focus:border-[#FF3B30]/50 transition-colors">
                     <option value="">— Selecionar —</option>
                     {field.options?.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                   </select>
@@ -228,12 +228,12 @@ export default function OnboardingQuiz({ profile, onComplete }: OnboardingQuizPr
                       const selected = form[field.key] === o.value
                       return (
                         <button key={o.value} onClick={() => set(field.key, o.value)}
-                          className={`p-4 rounded-xl border text-left transition-all group ${selected ? 'bg-[#E8002D]/8 border-[#E8002D]/50' : 'bg-[#0E0E0E] border-[#1C1C1C] hover:border-[#2A2A2A]'}`}>
-                          <div className={`mb-2 transition-colors ${selected ? 'text-[#E8002D]' : 'text-[#333] group-hover:text-[#555]'}`}>
+                          className={`p-4 rounded-xl border text-left transition-all group ${selected ? 'bg-[#FF3B30]/8 border-[#FF3B30]/50' : 'bg-[#0E0E0E] border-[#222222] hover:border-[#2A2A2A]'}`}>
+                          <div className={`mb-2 transition-colors ${selected ? 'text-[#FF3B30]' : 'text-[#333] group-hover:text-[#555]'}`}>
                             {icon || <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-8 h-8"><circle cx="12" cy="12" r="9"/></svg>}
                           </div>
                           <div className={`text-sm font-bold ${selected ? 'text-white' : 'text-[#666]'}`}>{o.label}</div>
-                          {o.sub && <div className={`text-xs mt-0.5 ${selected ? 'text-[#E8002D]/70' : 'text-[#333]'}`}>{o.sub}</div>}
+                          {o.sub && <div className={`text-xs mt-0.5 ${selected ? 'text-[#FF3B30]/70' : 'text-[#333]'}`}>{o.sub}</div>}
                         </button>
                       )
                     })}

@@ -332,7 +332,7 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
   if (!profile.training_plan) {
     return (
       <div className="min-h-screen flex flex-col">
-        <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#1C1C1C]">
+        <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#222222]">
           <h1 className="font-display text-3xl font-black text-white uppercase" style={{ fontFamily: 'var(--font-display)' }}>TREINO</h1>
           <p className="text-[#555] text-sm mt-0.5">Protocolos personalizados com registro de carga</p>
         </div>
@@ -352,7 +352,7 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
 
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#1C1C1C] flex items-center justify-between flex-shrink-0">
+      <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#222222] flex items-center justify-between flex-shrink-0">
         <div>
           <h1 className="font-display text-3xl font-black text-white uppercase" style={{ fontFamily: 'var(--font-display)' }}>TREINO</h1>
           <p className="text-[#555] text-sm mt-0.5">Registro de carga por exercício</p>
@@ -367,7 +367,7 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
 
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Days sidebar */}
-        <div className="w-full lg:w-56 border-b lg:border-b-0 lg:border-r border-[#1C1C1C] flex-shrink-0 overflow-x-auto lg:overflow-y-auto no-scrollbar">
+        <div className="w-full lg:w-56 border-b lg:border-b-0 lg:border-r border-[#222222] flex-shrink-0 overflow-x-auto lg:overflow-y-auto no-scrollbar">
           <div className="flex lg:block gap-2 lg:space-y-1 p-3 lg:pt-2">
             <p className="hidden lg:block text-[10px] font-black uppercase tracking-widest text-[#333] px-2 py-2" style={{ fontFamily: 'var(--font-display)' }}>SEMANA</p>
             {orderedDays.map(day => {
@@ -378,10 +378,10 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
               const totalCount = d?.exercises.length || 0
               return (
                 <button key={day} onClick={() => setSelectedDay(day)}
-                  className={`flex-shrink-0 w-32 lg:w-full text-left rounded-xl p-3 border transition-all ${isSelected ? 'bg-[#E8002D]/10 border-[#E8002D]/40' : 'bg-transparent border-transparent hover:bg-[#111] hover:border-[#1C1C1C]'}`}>
+                  className={`flex-shrink-0 w-32 lg:w-full text-left rounded-xl p-3 border transition-all ${isSelected ? 'bg-[#FF3B30]/10 border-[#FF3B30]/40' : 'bg-transparent border-transparent hover:bg-[#161616] hover:border-[#222222]'}`}>
                   <div className="flex items-center gap-1.5 mb-0.5">
-                    <span className={`text-[11px] font-black uppercase tracking-wider ${isSelected ? 'text-[#E8002D]' : isToday ? 'text-[#E8002D]/60' : 'text-[#444]'}`} style={{ fontFamily: 'var(--font-display)' }}>{day}</span>
-                    {isToday && <span className="text-[7px] bg-[#E8002D] text-white px-1 py-0.5 rounded font-bold">HOJE</span>}
+                    <span className={`text-[11px] font-black uppercase tracking-wider ${isSelected ? 'text-[#FF3B30]' : isToday ? 'text-[#FF3B30]/60' : 'text-[#444]'}`} style={{ fontFamily: 'var(--font-display)' }}>{day}</span>
+                    {isToday && <span className="text-[7px] bg-[#FF3B30] text-white px-1 py-0.5 rounded font-bold">HOJE</span>}
                   </div>
                   <p className="text-[11px] text-[#555] leading-tight truncate">
               {(d?.label || '—').replace(/^feira[:\s]*/i, '').replace(/\*\*/g, '').trim() || '—'}
@@ -389,7 +389,7 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
                   {totalCount > 0 && (
                     <div className="mt-1.5 flex gap-1">
                       {d.exercises.map((_, i) => (
-                        <div key={i} className={`h-1 flex-1 rounded-full ${d.exercises[i].saved ? 'bg-[#E8002D]' : 'bg-[#222]'}`} />
+                        <div key={i} className={`h-1 flex-1 rounded-full ${d.exercises[i].saved ? 'bg-[#FF3B30]' : 'bg-[#222]'}`} />
                       ))}
                     </div>
                   )}
@@ -411,7 +411,7 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
               </div>
 
               {currentDay.exercises.length === 0 ? (
-                <div className="rounded-2xl bg-[#111] border border-[#1C1C1C] p-12 text-center">
+                <div className="rounded-2xl bg-[#161616] border border-[#222222] p-12 text-center">
                   <p className="text-[#555] text-sm mb-2">Nenhum exercício detalhado encontrado para este dia</p>
                   <p className="text-[#333] text-xs">O plano completo está disponível abaixo</p>
                   <div className="mt-6 prose-dark text-left">
@@ -421,28 +421,28 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
               ) : (
                 <div className="space-y-3">
                   {currentDay.exercises.map((ex, exIdx) => (
-                    <div key={exIdx} className={`rounded-2xl border transition-all ${ex.saved ? 'bg-[#0E1A0E] border-[#1A3A1A]' : 'bg-[#111] border-[#1C1C1C]'}`}>
+                    <div key={exIdx} className={`rounded-2xl border transition-all ${ex.saved ? 'bg-[#0E1A0E] border-[#1A3A1A]' : 'bg-[#161616] border-[#222222]'}`}>
                       {/* Exercise header */}
                       <div className="px-4 sm:px-5 py-4 flex items-center justify-between flex-wrap gap-2">
                         <div className="flex items-center gap-2 flex-1 min-w-0 basis-full sm:basis-auto">
                           {ex.saved && <span className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><IconCheck /></span>}
-                          {!ex.saved && <span className="flex-shrink-0 w-2 h-2 rounded-full bg-[#E8002D]" />}
+                          {!ex.saved && <span className="flex-shrink-0 w-2 h-2 rounded-full bg-[#FF3B30]" />}
                           <span className="font-semibold text-white text-sm truncate">{ex.name}</span>
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
                           {ex.sets.some(s => s.weight || s.reps) && !ex.saved && (
                             <button onClick={() => saveLog(selectedDay, exIdx)}
-                              className="flex items-center gap-1 text-xs text-[#E8002D] border border-[#E8002D]/30 hover:bg-[#E8002D]/10 rounded-lg px-2.5 py-1.5 transition-all">
+                              className="flex items-center gap-1 text-xs text-[#FF3B30] border border-[#FF3B30]/30 hover:bg-[#FF3B30]/10 rounded-lg px-2.5 py-1.5 transition-all">
                               <IconSave /><span>Salvar</span>
                             </button>
                           )}
                           <a href={exerciseSearchUrl(ex.name)} target="_blank" rel="noopener noreferrer"
-                            className="flex items-center gap-1 text-xs text-[#555] border border-[#1C1C1C] hover:border-[#333] hover:text-[#999] rounded-lg px-2.5 py-1.5 transition-all"
+                            className="flex items-center gap-1 text-xs text-[#555] border border-[#222222] hover:border-[#333] hover:text-[#999] rounded-lg px-2.5 py-1.5 transition-all"
                             title="Ver vídeo de execução no YouTube">
                             <IconPlay /><span className="hidden sm:inline">Ver execução</span>
                           </a>
                           <button onClick={() => updateExercise(selectedDay, exIdx, { swapOpen: !ex.swapOpen, swapResult: '' })}
-                            className={`flex items-center gap-1 text-xs border rounded-lg px-2.5 py-1.5 transition-all ${ex.swapOpen ? 'text-[#E8002D] border-[#E8002D]/30 bg-[#E8002D]/5' : 'text-[#555] border-[#1C1C1C] hover:border-[#333] hover:text-[#999]'}`}>
+                            className={`flex items-center gap-1 text-xs border rounded-lg px-2.5 py-1.5 transition-all ${ex.swapOpen ? 'text-[#FF3B30] border-[#FF3B30]/30 bg-[#FF3B30]/5' : 'text-[#555] border-[#222222] hover:border-[#333] hover:text-[#999]'}`}>
                             <IconSwap /><span>Trocar</span>
                           </button>
                         </div>
@@ -452,7 +452,7 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
                       <AnimatePresence>
                         {ex.swapOpen && (
                           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
-                            <div className="px-5 pb-4 border-t border-[#1C1C1C] pt-4">
+                            <div className="px-5 pb-4 border-t border-[#222222] pt-4">
                               {!ex.swapResult ? (
                                 <div className="space-y-3">
                                   <p className="text-xs text-[#666]">Por que precisa trocar?</p>
@@ -461,7 +461,7 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
                                     onChange={e => updateExercise(selectedDay, exIdx, { swapReason: e.target.value })}
                                     placeholder="Ex: não tenho esse aparelho, dor no ombro, sem barra..."
                                     rows={2}
-                                    className="w-full bg-[#0A0A0A] border border-[#252525] rounded-xl px-4 py-3 text-white text-sm placeholder-[#444] resize-none focus:outline-none focus:border-[#E8002D]/40"
+                                    className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-xl px-4 py-3 text-white text-sm placeholder-[#444] resize-none focus:outline-none focus:border-[#FF3B30]/40"
                                   />
                                   <button onClick={() => requestSwap(selectedDay, exIdx)} disabled={ex.swapLoading}
                                     className="btn btn-primary btn-sm w-full">
@@ -494,12 +494,12 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
                             <div key={sIdx} className="grid grid-cols-[40px_1fr_1fr_28px] gap-2 items-center">
                               <span className="text-xs text-[#444] font-mono text-center">#{sIdx + 1}</span>
                               <input type="number" value={s.reps} onChange={e => updateSet(selectedDay, exIdx, sIdx, 'reps', e.target.value)}
-                                className="bg-[#0A0A0A] border border-[#1C1C1C] rounded-lg px-3 py-2 text-sm text-white text-center focus:outline-none focus:border-[#E8002D]/40 transition-colors"
+                                className="bg-[#0A0A0A] border border-[#222222] rounded-lg px-3 py-2 text-sm text-white text-center focus:outline-none focus:border-[#FF3B30]/40 transition-colors"
                                 placeholder="12" min="1" />
                               <input type="number" value={s.weight} onChange={e => updateSet(selectedDay, exIdx, sIdx, 'weight', e.target.value)}
-                                className="bg-[#0A0A0A] border border-[#1C1C1C] rounded-lg px-3 py-2 text-sm text-white text-center focus:outline-none focus:border-[#E8002D]/40 transition-colors"
+                                className="bg-[#0A0A0A] border border-[#222222] rounded-lg px-3 py-2 text-sm text-white text-center focus:outline-none focus:border-[#FF3B30]/40 transition-colors"
                                 placeholder="—" step="0.5" />
-                              <button onClick={() => removeSet(selectedDay, exIdx, sIdx)} className="text-[#333] hover:text-[#E8002D] transition-colors flex items-center justify-center">
+                              <button onClick={() => removeSet(selectedDay, exIdx, sIdx)} className="text-[#333] hover:text-[#FF3B30] transition-colors flex items-center justify-center">
                                 <IconTrash />
                               </button>
                             </div>

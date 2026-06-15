@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&family=JetBrains+Mono:wght@400;500&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,27 +7,32 @@
    DESIGN TOKENS
 ============================================================ */
 :root {
-  --font-display: 'Barlow Condensed', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
+  --font-display: 'Sora', sans-serif;
+  --font-body: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  --red: #E8002D;
-  --red-dark: #B8001F;
-  --red-glow: rgba(232, 0, 45, 0.2);
-  --black: #080808;
-  --surface: #111111;
-  --surface-2: #1A1A1A;
-  --border: #252525;
-  --border-subtle: #1C1C1C;
+  /* FORGE brand accents */
+  --orange: #FF6A00;
+  --red: #FF3B30;
+  --red-dark: #CC2E26;
+  --red-glow: rgba(255, 59, 48, 0.2);
+  --forge-gradient: linear-gradient(135deg, #FF6A00 0%, #FF3B30 100%);
+
+  /* Surfaces */
+  --black: #0B0B0B;
+  --surface: #161616;
+  --surface-2: #1B1B1B;
+  --border: #2A2A2A;
+  --border-subtle: #222222;
   --muted: #666666;
-  --text: #E8E8E8;
+  --text: #F5F5F5;
   --text-dim: #999999;
 
   /* Secondary accents */
   --gold: #D4AF37;
   --gold-glow: rgba(212, 175, 55, 0.18);
-  --green: #00D97E;
-  --green-glow: rgba(0, 217, 126, 0.18);
+  --green: #22C55E;
+  --green-glow: rgba(34, 197, 94, 0.18);
   --blue: #4DA6FF;
 }
 
@@ -108,16 +113,16 @@ body {
 .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
 .btn-primary {
-  background: var(--red);
+  background: var(--forge-gradient);
   color: #fff;
   padding: 12px 24px;
   font-size: 14px;
-  box-shadow: 0 0 30px -8px var(--red-glow);
+  box-shadow: 0 0 30px -8px rgba(255, 59, 48, 0.35);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: var(--red-dark);
-  box-shadow: 0 0 40px -6px rgba(232,0,45,0.4);
+  filter: brightness(1.08);
+  box-shadow: 0 0 40px -6px rgba(255, 59, 48, 0.5);
 }
 
 .btn-secondary {
@@ -333,7 +338,7 @@ select.input option { background: var(--surface-2); color: var(--text); }
 /* ============================================================
    GLOW EFFECTS
 ============================================================ */
-.glow-red { box-shadow: 0 0 40px -10px rgba(232,0,45,0.5); }
+.glow-red { box-shadow: 0 0 40px -10px rgba(255,59,48,0.5); }
 
 /* ============================================================
    ANIMATION UTILITIES
@@ -450,4 +455,21 @@ select.input option { background: var(--surface-2); color: var(--text); }
 }
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/* ============================================================
+   FORGE GRADIENT UTILITIES
+============================================================ */
+.forge-gradient-bg { background: var(--forge-gradient); }
+.forge-gradient-text {
+  background: var(--forge-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.forge-gradient-border {
+  border: 1px solid transparent;
+  background-image: linear-gradient(var(--surface), var(--surface)), var(--forge-gradient);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
 }

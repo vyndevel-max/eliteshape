@@ -109,9 +109,9 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { id: 'dashboard', label: 'Início', Icon: IconHome },
-  { id: 'coach', label: 'Análise Corporal', mobileLabel: 'Análise', Icon: IconBrain },
-  { id: 'chat', label: 'Chat com Coach', mobileLabel: 'Chat', Icon: IconChat },
+  { id: 'dashboard', label: 'Hoje', Icon: IconHome },
+  { id: 'coach', label: 'Diagnóstico Forge', mobileLabel: 'Diagnóstico', Icon: IconBrain },
+  { id: 'chat', label: 'Forge AI', mobileLabel: 'Forge AI', Icon: IconChat },
   { id: 'training', label: 'Treino', Icon: IconDumbbell },
   { id: 'nutrition', label: 'Nutrição', Icon: IconUtensils },
   { id: 'profile', label: 'Perfil', Icon: IconUser },
@@ -160,7 +160,7 @@ export default function AppShell({ initialProfile }: AppShellProps) {
   const ActivePanel = PANELS[activeTab] ?? DashboardPanel
 
   return (
-    <div className="min-h-screen bg-[#080808] flex">
+    <div className="min-h-screen bg-[#0B0B0B] flex">
       {/* Onboarding Quiz */}
       {showOnboarding && profile && (
         <OnboardingQuiz profile={profile} onComplete={handleProfileUpdate} />
@@ -171,15 +171,11 @@ export default function AppShell({ initialProfile }: AppShellProps) {
       <motion.aside
         animate={{ width: collapsed ? 72 : 260 }}
         transition={{ duration: 0.25, ease: 'easeInOut' }}
-        className="hidden lg:flex flex-shrink-0 h-screen sticky top-0 bg-[#0C0C0C] border-r border-[#1C1C1C] flex-col overflow-hidden z-20"
+        className="hidden lg:flex flex-shrink-0 h-screen sticky top-0 bg-[#0C0C0C] border-r border-[#222222] flex-col overflow-hidden z-20"
       >
         {/* Logo */}
-        <div className="p-5 flex items-center gap-3 border-b border-[#1C1C1C]">
-          <div className="w-9 h-9 rounded-lg bg-[#E8002D] flex items-center justify-center flex-shrink-0">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-              <path d="M4 18V6h3l5 8.5L17 6h3v12h-2.5v-7.5L14 18h-4L6.5 10.5V18H4Z"/>
-            </svg>
-          </div>
+        <div className="p-5 flex items-center gap-3 border-b border-[#222222]">
+          <img src="/icons/forge-logo.png" alt="FORGE" className="w-9 h-9 object-contain flex-shrink-0" />
           {!collapsed && (
             <motion.div
               initial={false}
@@ -187,9 +183,9 @@ export default function AppShell({ initialProfile }: AppShellProps) {
               exit={{ opacity: 0 }}
             >
               <p className="font-display font-black text-base text-white tracking-wider uppercase leading-none" style={{ fontFamily: 'var(--font-display)' }}>
-                ELITESHAPE
+                FORGE
               </p>
-              <p className="text-[9px] text-[#E8002D] tracking-[0.25em] uppercase font-mono">AI PERFORMANCE</p>
+              <p className="text-[9px] forge-gradient-text tracking-[0.2em] uppercase font-bold">FORJE SUA EVOLUÇÃO</p>
             </motion.div>
           )}
         </div>
@@ -197,7 +193,7 @@ export default function AppShell({ initialProfile }: AppShellProps) {
         {/* Collapse Toggle */}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="absolute top-[68px] -right-3 w-6 h-6 bg-[#1A1A1A] border border-[#252525] rounded-full flex items-center justify-center text-[#666] hover:text-white transition-colors z-30"
+          className="absolute top-[68px] -right-3 w-6 h-6 bg-[#1B1B1B] border border-[#2A2A2A] rounded-full flex items-center justify-center text-[#666] hover:text-white transition-colors z-30"
         >
           <motion.div animate={{ rotate: collapsed ? 0 : 180 }}>
             <IconChevron />
@@ -215,14 +211,14 @@ export default function AppShell({ initialProfile }: AppShellProps) {
                 title={collapsed ? label : undefined}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all relative ${
                   isActive
-                    ? 'bg-[#E8002D]/10 text-[#E8002D]'
+                    ? 'bg-[#FF3B30]/10 text-[#FF3B30]'
                     : 'text-[#555] hover:text-[#999] hover:bg-white/[0.03]'
                 }`}
               >
                 {isActive && (
                   <motion.div
                     layoutId="nav-active"
-                    className="absolute inset-0 rounded-lg bg-[#E8002D]/10 border border-[#E8002D]/20"
+                    className="absolute inset-0 rounded-lg bg-[#FF3B30]/10 border border-[#FF3B30]/20"
                     transition={{ duration: 0.2 }}
                   />
                 )}
@@ -231,7 +227,7 @@ export default function AppShell({ initialProfile }: AppShellProps) {
                   <span className="relative text-sm font-medium truncate">{label}</span>
                 )}
                 {isActive && !collapsed && (
-                  <span className="relative ml-auto w-1.5 h-1.5 rounded-full bg-[#E8002D]" />
+                  <span className="relative ml-auto w-1.5 h-1.5 rounded-full bg-[#FF3B30]" />
                 )}
               </button>
             )
@@ -239,17 +235,17 @@ export default function AppShell({ initialProfile }: AppShellProps) {
         </nav>
 
         {/* Bottom: Premium Banner + User */}
-        <div className="p-3 space-y-3 border-t border-[#1C1C1C]">
+        <div className="p-3 space-y-3 border-t border-[#222222]">
           {!collapsed && !profile?.is_premium && (
-            <div className="rounded-xl bg-gradient-to-br from-[#E8002D]/10 to-[#6366F1]/5 border border-[#E8002D]/20 p-4">
-              <div className="flex items-center gap-1.5 text-[#E8002D] mb-2">
+            <div className="rounded-xl bg-gradient-to-br from-[#FF3B30]/10 to-[#6366F1]/5 border border-[#FF3B30]/20 p-4">
+              <div className="flex items-center gap-1.5 text-[#FF3B30] mb-2">
                 <IconCrown />
                 <span className="text-[10px] font-black tracking-widest uppercase" style={{ fontFamily: 'var(--font-display)' }}>UPGRADE</span>
               </div>
               <p className="text-[11px] text-[#666] mb-3 leading-relaxed">
-                Libere análise de fotos, vídeos e receitas exclusivas.
+                Libere o Diagnóstico Forge completo, fotos ilimitadas e receitas exclusivas.
               </p>
-              <button className="w-full py-2 bg-[#E8002D] text-white text-[11px] font-black rounded-lg hover:bg-[#B8001F] transition-colors tracking-wider" style={{ fontFamily: 'var(--font-display)' }}>
+              <button className="w-full py-2 bg-[#FF3B30] text-white text-[11px] font-black rounded-lg hover:bg-[#CC2E26] transition-colors tracking-wider" style={{ fontFamily: 'var(--font-display)' }}>
                 ASSINAR R$ 49,90/mês
               </button>
             </div>
@@ -257,8 +253,8 @@ export default function AppShell({ initialProfile }: AppShellProps) {
 
           {/* User row */}
           <div className={`flex items-center gap-3 p-2 rounded-lg hover:bg-white/[0.03] transition-colors ${collapsed ? 'justify-center' : ''}`}>
-            <div className="w-8 h-8 rounded-full bg-[#E8002D]/20 border border-[#E8002D]/30 flex items-center justify-center flex-shrink-0">
-              <span className="text-[#E8002D] text-xs font-bold">
+            <div className="w-8 h-8 rounded-full bg-[#FF3B30]/20 border border-[#FF3B30]/30 flex items-center justify-center flex-shrink-0">
+              <span className="text-[#FF3B30] text-xs font-bold">
                 {profile?.name?.[0]?.toUpperCase() ?? '?'}
               </span>
             </div>
@@ -267,7 +263,7 @@ export default function AppShell({ initialProfile }: AppShellProps) {
                 <p className="text-sm text-white font-medium truncate">{profile?.name || 'Atleta'}</p>
                 <p className="text-[10px] text-[#444] uppercase tracking-widest">
                   {profile?.is_premium ? (
-                    <span className="text-[#E8002D]">Premium</span>
+                    <span className="text-[#FF3B30]">Premium</span>
                   ) : 'Free'}
                 </p>
               </div>
@@ -275,7 +271,7 @@ export default function AppShell({ initialProfile }: AppShellProps) {
             {!collapsed && (
               <button
                 onClick={handleLogout}
-                className="text-[#444] hover:text-[#E8002D] transition-colors"
+                className="text-[#444] hover:text-[#FF3B30] transition-colors"
                 title="Sair"
               >
                 <IconLogout />
@@ -311,7 +307,7 @@ export default function AppShell({ initialProfile }: AppShellProps) {
       {/* ====================================================
           BOTTOM NAV (mobile only)
       ==================================================== */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#0C0C0C] border-t border-[#1C1C1C] pb-[env(safe-area-inset-bottom)]">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#0C0C0C] border-t border-[#222222] pb-[env(safe-area-inset-bottom)]">
         <div className="flex items-stretch overflow-x-auto no-scrollbar">
           {navItems.map(({ id, label, mobileLabel, Icon }) => {
             const isActive = activeTab === id
@@ -320,11 +316,11 @@ export default function AppShell({ initialProfile }: AppShellProps) {
                 key={id}
                 onClick={() => setActiveTab(id)}
                 className={`flex-1 min-w-[64px] flex flex-col items-center justify-center gap-1 py-2.5 px-1 transition-colors relative ${
-                  isActive ? 'text-[#E8002D]' : 'text-[#555]'
+                  isActive ? 'text-[#FF3B30]' : 'text-[#555]'
                 }`}
               >
                 {isActive && (
-                  <motion.span layoutId="mobile-nav-active" className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-[#E8002D] rounded-full" transition={{ duration: 0.2 }} />
+                  <motion.span layoutId="mobile-nav-active" className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-[#FF3B30] rounded-full" transition={{ duration: 0.2 }} />
                 )}
                 <Icon />
                 <span className="text-[9px] font-medium leading-none text-center truncate max-w-full px-0.5">{mobileLabel || label}</span>

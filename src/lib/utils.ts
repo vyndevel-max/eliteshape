@@ -75,13 +75,13 @@ export function resizeImage(file: File, maxDimension = 1200, quality = 0.85): Pr
 }
 
 export function getMacroColor(macro: 'protein' | 'carbs' | 'fat') {
-  return { protein: '#E8002D', carbs: '#F59E0B', fat: '#6366F1' }[macro]
+  return { protein: '#FF3B30', carbs: '#F59E0B', fat: '#6366F1' }[macro]
 }
 
 export function getProgressColor(pct: number) {
   if (pct >= 90) return '#22C55E'
   if (pct >= 60) return '#F59E0B'
-  return '#E8002D'
+  return '#FF3B30'
 }
 
 export function clamp(value: number, min: number, max: number) {

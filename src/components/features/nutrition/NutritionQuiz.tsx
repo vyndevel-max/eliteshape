@@ -138,12 +138,12 @@ export default function NutritionQuiz({ profile, onComplete }: NutritionQuizProp
   }
 
   return (
-    <div className="fixed inset-0 bg-[#080808] flex flex-col items-center justify-center z-50 p-4 overflow-y-auto py-8">
+    <div className="fixed inset-0 bg-[#0B0B0B] flex flex-col items-center justify-center z-50 p-4 overflow-y-auto py-8">
       <div className="w-full max-w-lg mb-8">
         <div className="flex justify-between text-[10px] text-[#333] mb-2 uppercase tracking-widest" style={{ fontFamily: 'var(--font-display)' }}>
           <span>Configurando sua Nutrição</span><span>{step + 1} / {steps.length}</span>
         </div>
-        <div className="h-0.5 bg-[#111] rounded-full overflow-hidden">
+        <div className="h-0.5 bg-[#161616] rounded-full overflow-hidden">
           <motion.div className="h-full bg-[#F59E0B] rounded-full" animate={{ width: `${progress}%` }} transition={{ duration: 0.4 }} />
         </div>
       </div>
@@ -166,7 +166,7 @@ export default function NutritionQuiz({ profile, onComplete }: NutritionQuizProp
                       const selected = form[field.key] === o.value
                       return (
                         <button key={o.value} onClick={() => set(field.key, o.value)}
-                          className={`p-4 rounded-xl border text-left transition-all ${selected ? 'bg-[#F59E0B]/8 border-[#F59E0B]/50' : 'bg-[#0E0E0E] border-[#1C1C1C] hover:border-[#2A2A2A]'}`}>
+                          className={`p-4 rounded-xl border text-left transition-all ${selected ? 'bg-[#F59E0B]/8 border-[#F59E0B]/50' : 'bg-[#0E0E0E] border-[#222222] hover:border-[#2A2A2A]'}`}>
                           <div className={`mb-2 transition-colors ${selected ? 'text-[#F59E0B]' : 'text-[#333]'}`}>{o.icon}</div>
                           <div className={`text-sm font-bold ${selected ? 'text-white' : 'text-[#666]'}`}>{o.label}</div>
                           {o.sub && <div className={`text-xs mt-0.5 ${selected ? 'text-[#F59E0B]/70' : 'text-[#333]'}`}>{o.sub}</div>}
@@ -182,7 +182,7 @@ export default function NutritionQuiz({ profile, onComplete }: NutritionQuizProp
                       const selected = (form[field.key] || []).includes(opt)
                       return (
                         <button key={opt} onClick={() => toggleMulti(field.key, opt)}
-                          className={`px-4 py-2.5 rounded-xl border text-sm font-medium transition-all ${selected ? 'bg-[#F59E0B]/10 border-[#F59E0B]/50 text-white' : 'bg-[#0E0E0E] border-[#1C1C1C] text-[#555] hover:border-[#2A2A2A]'}`}>
+                          className={`px-4 py-2.5 rounded-xl border text-sm font-medium transition-all ${selected ? 'bg-[#F59E0B]/10 border-[#F59E0B]/50 text-white' : 'bg-[#0E0E0E] border-[#222222] text-[#555] hover:border-[#2A2A2A]'}`}>
                           {opt}
                         </button>
                       )
@@ -194,7 +194,7 @@ export default function NutritionQuiz({ profile, onComplete }: NutritionQuizProp
                   <div className="relative">
                     <textarea value={form[field.key] || ''} onChange={e => set(field.key, e.target.value)}
                       placeholder={(field as any).placeholder} rows={3}
-                      className="w-full bg-[#0E0E0E] border border-[#1C1C1C] rounded-xl px-5 py-4 pr-14 text-white text-sm placeholder-[#333] resize-none focus:outline-none focus:border-[#F59E0B]/40" />
+                      className="w-full bg-[#0E0E0E] border border-[#222222] rounded-xl px-5 py-4 pr-14 text-white text-sm placeholder-[#333] resize-none focus:outline-none focus:border-[#F59E0B]/40" />
                     <div className="absolute bottom-3 right-3">
                       <VoiceInputButton size="sm"
                         onResult={text => set(field.key, form[field.key] ? `${form[field.key]} ${text}` : text)} />

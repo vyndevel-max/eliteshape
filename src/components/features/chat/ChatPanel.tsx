@@ -159,29 +159,29 @@ Gordura alvo: ${profile.target_fat}g
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
-      <div className="px-4 sm:px-8 py-4 sm:py-5 border-b border-[#1C1C1C] flex items-center gap-3 sm:gap-4 flex-wrap flex-shrink-0">
-        <div className="w-10 h-10 rounded-xl bg-[#E8002D]/10 border border-[#E8002D]/20 flex items-center justify-center text-[#E8002D] flex-shrink-0">
+      <div className="px-4 sm:px-8 py-4 sm:py-5 border-b border-[#222222] flex items-center gap-3 sm:gap-4 flex-wrap flex-shrink-0">
+        <div className="w-10 h-10 rounded-xl bg-[#FF3B30]/10 border border-[#FF3B30]/20 flex items-center justify-center text-[#FF3B30] flex-shrink-0">
           <IconCoach />
         </div>
         <div className="min-w-0 flex-1">
-          <h1 className="font-display text-lg sm:text-2xl font-black text-white uppercase tracking-wide truncate" style={{ fontFamily: 'var(--font-display)' }}>CHAT COM O COACH</h1>
+          <h1 className="font-display text-lg sm:text-2xl font-black text-white uppercase tracking-wide truncate" style={{ fontFamily: 'var(--font-display)' }}>FORGE AI</h1>
           <p className="text-[#555] text-xs mt-0.5 flex items-center gap-1.5 truncate">
             <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
-            <span className="truncate">Coach online — responde sobre treino e nutrição</span>
+            <span className="truncate">Forge AI online — responde sobre treino e nutrição</span>
           </p>
         </div>
         {hasAnalysis && (
-          <div className="flex items-center gap-2 bg-[#111] border border-[#1C1C1C] rounded-xl px-3 sm:px-4 py-2 flex-shrink-0">
+          <div className="flex items-center gap-2 bg-[#161616] border border-[#222222] rounded-xl px-3 sm:px-4 py-2 flex-shrink-0">
             <IconZap />
             <span className="text-xs text-[#666] hidden sm:inline">Análise carregada</span>
-            <span className="text-xs font-black text-[#E8002D]">{analysisContext?.overall_score}/10</span>
+            <span className="text-xs font-black text-[#FF3B30]">{analysisContext?.overall_score}/10</span>
           </div>
         )}
       </div>
 
       {/* Context banner if no analysis */}
       {!hasAnalysis && (
-        <div className="mx-6 mt-4 p-4 rounded-xl bg-[#111] border border-[#1C1C1C] flex items-start gap-3 flex-shrink-0">
+        <div className="mx-6 mt-4 p-4 rounded-xl bg-[#161616] border border-[#222222] flex items-start gap-3 flex-shrink-0">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2" className="flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           <p className="text-xs text-[#666] leading-relaxed">
             Dica: Para respostas mais precisas, <span className="text-white">faça sua análise corporal</span> em "Análise Corporal" primeiro. Assim o coach conhece seu físico de verdade!
@@ -195,14 +195,14 @@ Gordura alvo: ${profile.target_fat}g
           <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
             className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             {msg.role === 'assistant' && (
-              <div className="w-8 h-8 rounded-lg bg-[#E8002D]/10 border border-[#E8002D]/20 flex items-center justify-center text-[#E8002D] mr-3 flex-shrink-0 mt-1">
+              <div className="w-8 h-8 rounded-lg bg-[#FF3B30]/10 border border-[#FF3B30]/20 flex items-center justify-center text-[#FF3B30] mr-3 flex-shrink-0 mt-1">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
               </div>
             )}
             <div className={`max-w-[75%] rounded-2xl px-5 py-4 text-sm leading-relaxed ${
               msg.role === 'user'
-                ? 'bg-[#E8002D] text-white rounded-tr-sm'
-                : 'bg-[#111] border border-[#1C1C1C] text-[#CCC] rounded-tl-sm'
+                ? 'bg-[#FF3B30] text-white rounded-tr-sm'
+                : 'bg-[#161616] border border-[#222222] text-[#CCC] rounded-tl-sm'
             }`}>
               {msg.role === 'assistant'
                 ? <div className="prose-dark text-sm"><Markdown>{msg.content}</Markdown></div>
@@ -214,14 +214,14 @@ Gordura alvo: ${profile.target_fat}g
 
         {loading && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
-            <div className="w-8 h-8 rounded-lg bg-[#E8002D]/10 border border-[#E8002D]/20 flex items-center justify-center text-[#E8002D] mr-3 flex-shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-[#FF3B30]/10 border border-[#FF3B30]/20 flex items-center justify-center text-[#FF3B30] mr-3 flex-shrink-0">
               <IconLoader />
             </div>
-            <div className="bg-[#111] border border-[#1C1C1C] rounded-2xl rounded-tl-sm px-5 py-4">
+            <div className="bg-[#161616] border border-[#222222] rounded-2xl rounded-tl-sm px-5 py-4">
               <div className="flex gap-1.5 items-center">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#E8002D] animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-1.5 h-1.5 rounded-full bg-[#E8002D] animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-1.5 h-1.5 rounded-full bg-[#E8002D] animate-bounce" style={{ animationDelay: '300ms' }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#FF3B30] animate-bounce" style={{ animationDelay: '0ms' }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#FF3B30] animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#FF3B30] animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
             </div>
           </motion.div>
@@ -236,7 +236,7 @@ Gordura alvo: ${profile.target_fat}g
           <div className="flex gap-2 flex-wrap">
             {QUICK_QUESTIONS.map(q => (
               <button key={q} onClick={() => sendMessage(q)}
-                className="text-xs text-[#555] border border-[#1C1C1C] hover:border-[#E8002D]/30 hover:text-[#999] rounded-xl px-3 py-2 transition-all">
+                className="text-xs text-[#555] border border-[#222222] hover:border-[#FF3B30]/30 hover:text-[#999] rounded-xl px-3 py-2 transition-all">
                 {q}
               </button>
             ))}
@@ -246,13 +246,13 @@ Gordura alvo: ${profile.target_fat}g
 
       {/* Input */}
       <div className="px-6 pb-6 pt-3 flex-shrink-0">
-        <div className="flex gap-3 bg-[#111] border border-[#1C1C1C] rounded-2xl p-2 focus-within:border-[#E8002D]/30 transition-colors">
+        <div className="flex gap-3 bg-[#161616] border border-[#222222] rounded-2xl p-2 focus-within:border-[#FF3B30]/30 transition-colors">
           <textarea
             ref={inputRef}
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKey}
-            placeholder="Pergunte ao seu coach de elite..."
+            placeholder="Pergunte à Forge AI..."
             rows={1}
             className="flex-1 bg-transparent text-white text-sm placeholder-[#444] resize-none focus:outline-none px-3 py-2 max-h-32"
             style={{ overflowY: 'auto' }}
@@ -261,7 +261,7 @@ Gordura alvo: ${profile.target_fat}g
             <VoiceInputButton onResult={text => setInput(prev => prev ? `${prev} ${text}` : text)} />
           </div>
           <button onClick={() => sendMessage()} disabled={!input.trim() || loading}
-            className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all self-end mb-0.5 ${input.trim() && !loading ? 'bg-[#E8002D] text-white hover:bg-[#CC0026]' : 'bg-[#1C1C1C] text-[#444]'}`}>
+            className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all self-end mb-0.5 ${input.trim() && !loading ? 'bg-[#FF3B30] text-white hover:bg-[#CC0026]' : 'bg-[#222222] text-[#444]'}`}>
             <IconSend />
           </button>
         </div>

@@ -26,25 +26,25 @@ export default function RankingPanel({ profile }: { profile: Profile; onProfileU
 
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#1C1C1C]">
-        <h1 className="font-display text-3xl font-black text-white uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>RANKING ELITE</h1>
+      <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#222222]">
+        <h1 className="font-display text-3xl font-black text-white uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>RANKING FORGE</h1>
         <p className="text-[#555] text-sm mt-0.5">Os atletas mais dedicados da plataforma</p>
       </div>
       <div className="flex-1 p-4 sm:p-8">
         {myRank > 0 && (
-          <div className="rounded-2xl bg-[#E8002D]/10 border border-[#E8002D]/20 p-5 mb-6 flex items-center justify-between">
+          <div className="rounded-2xl bg-[#FF3B30]/10 border border-[#FF3B30]/20 p-5 mb-6 flex items-center justify-between">
             <div>
-              <p className="text-xs font-black text-[#E8002D] uppercase tracking-widest mb-1" style={{ fontFamily: 'var(--font-display)' }}>SUA POSIÇÃO</p>
+              <p className="text-xs font-black text-[#FF3B30] uppercase tracking-widest mb-1" style={{ fontFamily: 'var(--font-display)' }}>SUA POSIÇÃO</p>
               <p className="text-white font-semibold">{profile.name}</p>
             </div>
             <div className="text-right">
-              <p className="font-display text-4xl font-black text-[#E8002D]" style={{ fontFamily: 'var(--font-display)' }}>#{myRank}</p>
+              <p className="font-display text-4xl font-black text-[#FF3B30]" style={{ fontFamily: 'var(--font-display)' }}>#{myRank}</p>
               <p className="text-xs text-[#555]">{profile.points} pts</p>
             </div>
           </div>
         )}
 
-        <div className="rounded-2xl bg-[#111] border border-[#1C1C1C] overflow-hidden">
+        <div className="rounded-2xl bg-[#161616] border border-[#222222] overflow-hidden">
           {ranking.length === 0 && (
             <div className="text-center py-16 text-[#444]">
               <IconTrophy />
@@ -53,7 +53,7 @@ export default function RankingPanel({ profile }: { profile: Profile; onProfileU
           )}
           {ranking.map((entry, i) => (
             <div key={entry.id}
-              className={`flex items-center gap-4 px-6 py-4 border-b border-[#1C1C1C] last:border-0 transition-colors ${entry.id === profile.id ? 'bg-[#E8002D]/5' : 'hover:bg-white/[0.02]'}`}>
+              className={`flex items-center gap-4 px-6 py-4 border-b border-[#222222] last:border-0 transition-colors ${entry.id === profile.id ? 'bg-[#FF3B30]/5' : 'hover:bg-white/[0.02]'}`}>
               <div className="w-8 text-center">
                 {i < 3 ? (
                   <svg width="20" height="20" viewBox="0 0 24 24" fill={MEDAL_COLORS[i]}>
@@ -63,12 +63,12 @@ export default function RankingPanel({ profile }: { profile: Profile; onProfileU
                   <span className="text-sm font-mono text-[#444]">#{entry.rank}</span>
                 )}
               </div>
-              <div className="w-8 h-8 rounded-full bg-[#E8002D]/20 border border-[#E8002D]/30 flex items-center justify-center text-[#E8002D] text-xs font-bold flex-shrink-0">
+              <div className="w-8 h-8 rounded-full bg-[#FF3B30]/20 border border-[#FF3B30]/30 flex items-center justify-center text-[#FF3B30] text-xs font-bold flex-shrink-0">
                 {entry.name[0]?.toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">{entry.name}</p>
-                {entry.is_premium && <span className="text-[9px] text-[#E8002D] uppercase tracking-widest">Premium</span>}
+                {entry.is_premium && <span className="text-[9px] text-[#FF3B30] uppercase tracking-widest">Premium</span>}
               </div>
               <p className="font-display font-black text-white" style={{ fontFamily: 'var(--font-display)' }}>{entry.points}</p>
               <p className="text-xs text-[#444]">pts</p>

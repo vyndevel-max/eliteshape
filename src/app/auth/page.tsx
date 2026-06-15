@@ -7,11 +7,8 @@ import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 
 // SVG Icons
-const IconLogo = () => (
-  <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-    <rect width="32" height="32" rx="8" fill="#E8002D"/>
-    <path d="M8 22V10h4l4 8 4-8h4v12h-3v-7l-3.5 7h-3L11 15v7H8z" fill="white"/>
-  </svg>
+const IconLogo = ({ size = 32 }: { size?: number }) => (
+  <img src="/icons/forge-logo.png" alt="FORGE" width={size} height={size} className="object-contain" />
 )
 
 const IconMail = () => (
@@ -55,10 +52,10 @@ const IconEye = ({ off }: { off?: boolean }) => (
 )
 
 const FEATURES = [
-  { title: 'Análise de Shape por IA', desc: 'Visão computacional analisa sua composição corporal em segundos' },
-  { title: 'Treinos Personalizados', desc: 'Protocolos adaptados ao seu nível, objetivo e disponibilidade' },
+  { title: 'Diagnóstico Forge por IA', desc: 'Visão computacional analisa sua composição corporal em segundos' },
+  { title: 'Protocolo de Treino sob Medida', desc: 'Adaptado ao seu nível, objetivo e rotina semanal' },
   { title: 'Nutrição de Precisão', desc: 'Planos macro-calibrados com reconhecimento de alimentos por IA' },
-  { title: 'Coach Especialista 24/7', desc: 'Chat direto com IA treinada em ciência do esporte de elite' },
+  { title: 'Forge AI 24/7', desc: 'Sua coach pessoal — interpreta seus dados e diz exatamente o que fazer' },
 ]
 
 export default function AuthPage() {
@@ -103,7 +100,7 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#080808] flex items-center justify-center p-4 overflow-hidden relative">
+    <div className="min-h-screen bg-[#0B0B0B] flex items-center justify-center p-4 overflow-hidden relative">
       {/* Background grid */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 opacity-[0.03]"
@@ -112,7 +109,7 @@ export default function AuthPage() {
             backgroundSize: '60px 60px'
           }}
         />
-        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-[#E8002D] opacity-[0.06] blur-[120px]" />
+        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-[#FF3B30] opacity-[0.06] blur-[120px]" />
         <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-[#6366F1] opacity-[0.04] blur-[100px]" />
       </div>
 
@@ -121,25 +118,25 @@ export default function AuthPage() {
         <div className="hidden lg:flex flex-col bg-[#0E0E0E] p-12 relative overflow-hidden">
           {/* Decorative lines */}
           <div className="absolute top-0 right-0 w-px h-full bg-gradient-to-b from-transparent via-white/10 to-transparent" />
-          <div className="absolute top-24 left-0 right-0 h-px bg-gradient-to-r from-[#E8002D]/30 via-transparent to-transparent" />
+          <div className="absolute top-24 left-0 right-0 h-px bg-gradient-to-r from-[#FF3B30]/30 via-transparent to-transparent" />
 
           <div className="flex items-center gap-3 mb-16">
             <IconLogo />
             <div>
-              <p className="font-display font-800 text-xl tracking-widest text-white uppercase" style={{ fontFamily: 'var(--font-display)', fontWeight: 800 }}>ELITESHAPE</p>
-              <p className="text-[10px] text-[#E8002D] tracking-[0.3em] uppercase font-mono">AI PERFORMANCE</p>
+              <p className="font-display font-800 text-xl tracking-widest text-white uppercase" style={{ fontFamily: 'var(--font-display)', fontWeight: 800 }}>FORGE</p>
+              <p className="text-[10px] forge-gradient-text tracking-[0.3em] uppercase font-bold">FORJE SUA EVOLUÇÃO</p>
             </div>
           </div>
 
           <div className="flex-1">
             <h1 className="font-display text-5xl font-black text-white uppercase leading-none mb-2" style={{ fontFamily: 'var(--font-display)' }}>
-              TRANSFORME<br/>SEU SHAPE
+              VOCÊ NÃO<br/>NASCE PRONTO.
             </h1>
-            <p className="text-[#E8002D] font-display text-2xl font-700 uppercase tracking-wider mb-8" style={{ fontFamily: 'var(--font-display)' }}>
-              EM 90 DIAS
+            <p className="forge-gradient-text font-display text-2xl font-700 uppercase tracking-wider mb-8" style={{ fontFamily: 'var(--font-display)' }}>
+              VOCÊ É FORJADO.
             </p>
             <p className="text-[#666] text-sm leading-relaxed max-w-xs mb-12">
-              Protocolo de elite com inteligência artificial. Análise real, planos reais, resultados reais.
+              Evolução guiada por inteligência artificial. Diagnóstico real, plano sob medida, resultado mensurável.
             </p>
 
             <div className="space-y-5">
@@ -151,8 +148,8 @@ export default function AuthPage() {
                   transition={{ delay: 0.1 + i * 0.1 }}
                   className="flex gap-4 items-start"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-[#E8002D]/10 border border-[#E8002D]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E8002D" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <div className="w-8 h-8 rounded-lg bg-[#FF3B30]/10 border border-[#FF3B30]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF3B30" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="20 6 9 17 4 12"/>
                     </svg>
                   </div>
@@ -166,16 +163,19 @@ export default function AuthPage() {
           </div>
 
           <div className="mt-12 pt-8 border-t border-white/[0.06]">
-            <p className="text-[#444] text-xs tracking-widest uppercase">+5.000 atletas de elite</p>
+            <p className="text-[#444] text-xs tracking-widest uppercase">+5.000 pessoas em evolução</p>
           </div>
         </div>
 
         {/* RIGHT: Auth Form */}
-        <div className="bg-[#111] p-8 lg:p-12 flex flex-col justify-center">
+        <div className="bg-[#161616] p-8 lg:p-12 flex flex-col justify-center">
           {/* Mobile logo */}
           <div className="flex items-center gap-3 mb-8 lg:hidden">
             <IconLogo />
-            <p className="font-display font-800 text-lg tracking-widest text-white uppercase" style={{ fontFamily: 'var(--font-display)', fontWeight: 800 }}>ELITESHAPE AI</p>
+            <div>
+              <p className="font-display font-800 text-lg tracking-widest text-white uppercase leading-none" style={{ fontFamily: 'var(--font-display)', fontWeight: 800 }}>FORGE</p>
+              <p className="text-[9px] forge-gradient-text tracking-[0.25em] uppercase font-bold">FORJE SUA EVOLUÇÃO</p>
+            </div>
           </div>
 
           <AnimatePresence mode="wait">
@@ -193,7 +193,7 @@ export default function AuthPage() {
                 <p className="text-[#666] text-sm">
                   {mode === 'login'
                     ? 'Acesse sua central de comando.'
-                    : 'Crie sua conta e receba seu primeiro plano de elite.'}
+                    : 'Crie sua conta e receba seu primeiro Diagnóstico Forge.'}
                 </p>
               </div>
 
@@ -225,7 +225,7 @@ export default function AuthPage() {
                       value={form.email}
                       onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                       className="input pl-11"
-                      placeholder="atleta@elite.com"
+                      placeholder="voce@forge.com"
                     />
                   </div>
                 </div>
@@ -254,7 +254,7 @@ export default function AuthPage() {
                 </div>
 
                 {error && (
-                  <div className="bg-[#E8002D]/10 border border-[#E8002D]/20 rounded-lg p-3 text-[#E8002D] text-sm">
+                  <div className="bg-[#FF3B30]/10 border border-[#FF3B30]/20 rounded-lg p-3 text-[#FF3B30] text-sm">
                     {error}
                   </div>
                 )}
@@ -282,7 +282,7 @@ export default function AuthPage() {
                   <button
                     type="button"
                     onClick={() => { setMode(m => m === 'login' ? 'signup' : 'login'); setError(null) }}
-                    className="text-[#E8002D] font-semibold hover:underline"
+                    className="text-[#FF3B30] font-semibold hover:underline"
                   >
                     {mode === 'login' ? 'Criar conta' : 'Fazer login'}
                   </button>

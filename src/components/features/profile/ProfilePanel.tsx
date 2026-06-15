@@ -140,7 +140,7 @@ export default function ProfilePanel({ profile, onProfileUpdate }: ProfilePanelP
 
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#1C1C1C] flex items-center justify-between flex-wrap gap-4">
+      <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#222222] flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="font-display text-3xl font-black text-white uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>PERFIL</h1>
           <p className="text-[#555] text-sm mt-0.5">Mantenha seus dados atualizados para melhores resultados</p>
@@ -152,14 +152,14 @@ export default function ProfilePanel({ profile, onProfileUpdate }: ProfilePanelP
 
       <div className="flex-1 p-8 max-w-3xl">
         {/* Completion */}
-        <div className="rounded-2xl bg-[#111] border border-[#1C1C1C] p-6 mb-8">
+        <div className="rounded-2xl bg-[#161616] border border-[#222222] p-6 mb-8">
           <div className="flex items-center justify-between mb-3">
             <div>
               <p className="text-white font-semibold">{profile.name || 'Atleta'}</p>
               <p className="text-xs text-[#555]">{profile.is_premium ? 'Membro Premium' : 'Plano Free'}</p>
             </div>
             <div className="text-right">
-              <p className="text-2xl font-display font-black text-[#E8002D]" style={{ fontFamily: 'var(--font-display)' }}>{pct}%</p>
+              <p className="text-2xl font-display font-black text-[#FF3B30]" style={{ fontFamily: 'var(--font-display)' }}>{pct}%</p>
               <p className="text-xs text-[#555]">perfil completo</p>
             </div>
           </div>
@@ -176,10 +176,10 @@ export default function ProfilePanel({ profile, onProfileUpdate }: ProfilePanelP
         <div className="space-y-8 stagger">
           {SECTIONS.map(section => (
             <div key={section.title}>
-              <p className="text-xs font-black uppercase tracking-widest text-[#E8002D] mb-4" style={{ fontFamily: 'var(--font-display)' }}>
+              <p className="text-xs font-black uppercase tracking-widest text-[#FF3B30] mb-4" style={{ fontFamily: 'var(--font-display)' }}>
                 {section.title}
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-2xl bg-[#111] border border-[#1C1C1C] p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-2xl bg-[#161616] border border-[#222222] p-6">
                 {section.fields.map(field => (
                   <div key={String(field.key)} className={field.type === 'toggle' ? 'flex items-center justify-between col-span-2' : ''}>
                     <label className="input-label">{field.label}</label>
@@ -195,7 +195,7 @@ export default function ProfilePanel({ profile, onProfileUpdate }: ProfilePanelP
                     ) : field.type === 'toggle' ? (
                       <button
                         onClick={() => set(field.key, !form[field.key])}
-                        className={`relative w-12 h-6 rounded-full transition-colors ${form[field.key] ? 'bg-[#E8002D]' : 'bg-[#252525]'}`}
+                        className={`relative w-12 h-6 rounded-full transition-colors ${form[field.key] ? 'bg-[#FF3B30]' : 'bg-[#2A2A2A]'}`}
                       >
                         <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${form[field.key] ? 'translate-x-7' : 'translate-x-1'}`} />
                       </button>

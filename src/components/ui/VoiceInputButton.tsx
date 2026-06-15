@@ -93,8 +93,8 @@ export default function VoiceInputButton({ onResult, onInterim, lang = 'pt-BR', 
       title={listening ? 'Parar gravação' : 'Falar'}
       className={`relative flex items-center justify-center gap-2 rounded-xl border transition-all flex-shrink-0 ${dim} ${
         listening
-          ? 'bg-[#E8002D]/15 border-[#E8002D]/40 text-[#E8002D]'
-          : 'bg-[#0E0E0E] border-[#1C1C1C] text-[#555] hover:border-[#333] hover:text-[#999]'
+          ? 'bg-[#FF3B30]/15 border-[#FF3B30]/40 text-[#FF3B30]'
+          : 'bg-[#0E0E0E] border-[#222222] text-[#555] hover:border-[#333] hover:text-[#999]'
       } ${label ? 'w-auto px-3' : ''} ${className}`}
     >
       <AnimatePresence>
@@ -104,7 +104,7 @@ export default function VoiceInputButton({ onResult, onInterim, lang = 'pt-BR', 
             animate={{ scale: 1.8, opacity: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1.1, repeat: Infinity, ease: 'easeOut' }}
-            className="absolute inset-0 rounded-xl border border-[#E8002D]"
+            className="absolute inset-0 rounded-xl border border-[#FF3B30]"
           />
         )}
       </AnimatePresence>

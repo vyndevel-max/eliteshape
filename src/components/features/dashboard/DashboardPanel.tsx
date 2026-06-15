@@ -105,7 +105,7 @@ export default function DashboardPanel({ profile, onProfileUpdate }: DashboardPa
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#1C1C1C] flex items-center justify-between flex-wrap gap-4">
+      <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#222222] flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="font-display text-3xl font-black text-white uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>
             {greeting}, {firstName.toUpperCase()}
@@ -130,11 +130,11 @@ export default function DashboardPanel({ profile, onProfileUpdate }: DashboardPa
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
           {/* Score card */}
           <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
-            className="lg:col-span-4 rounded-2xl bg-[#111] border border-[#1C1C1C] p-6 flex flex-col items-center justify-center text-center card-lift">
-            <p className="text-xs font-black uppercase tracking-widest text-[#555] mb-4" style={{ fontFamily: 'var(--font-display)' }}>SEU SCORE ATUAL</p>
+            className="lg:col-span-4 rounded-2xl bg-[#161616] border border-[#222222] p-6 flex flex-col items-center justify-center text-center card-lift">
+            <p className="text-xs font-black uppercase tracking-widest text-[#555] mb-4" style={{ fontFamily: 'var(--font-display)' }}>FORGE SCORE</p>
             {latestShape ? (
               <>
-                <RadialScore value={latestShape.muscle_score ?? 0} max={10} size={150} color="var(--red)" label="/ 10" />
+                <RadialScore value={latestShape.muscle_score ?? 0} max={10} size={150} gradient label="/ 10" />
                 <div className="flex items-center gap-2 mt-4">
                   <span className="badge-gold text-xs font-bold rounded-lg px-3 py-1">
                     {formatNumber(latestShape.fat_percentage ?? 0, 1)}% gordura
@@ -143,7 +143,7 @@ export default function DashboardPanel({ profile, onProfileUpdate }: DashboardPa
               </>
             ) : (
               <div className="py-6">
-                <div className="w-16 h-16 rounded-2xl bg-[#E8002D]/10 border border-[#E8002D]/20 flex items-center justify-center mx-auto mb-4 text-[#E8002D]">
+                <div className="w-16 h-16 rounded-2xl bg-[#FF3B30]/10 border border-[#FF3B30]/20 flex items-center justify-center mx-auto mb-4 text-[#FF3B30]">
                   <IconScan />
                 </div>
                 <p className="text-white font-semibold text-sm mb-1">Sem análise ainda</p>
@@ -159,8 +159,8 @@ export default function DashboardPanel({ profile, onProfileUpdate }: DashboardPa
           <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
             className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-5">
             {/* Calories */}
-            <div className="rounded-2xl bg-[#111] border border-[#1C1C1C] p-6 card-lift">
-              <div className="flex items-center gap-2 text-[#E8002D] mb-4">
+            <div className="rounded-2xl bg-[#161616] border border-[#222222] p-6 card-lift">
+              <div className="flex items-center gap-2 text-[#FF3B30] mb-4">
                 <IconFork />
                 <p className="text-xs font-black uppercase tracking-widest" style={{ fontFamily: 'var(--font-display)' }}>CALORIAS HOJE</p>
               </div>
@@ -173,7 +173,7 @@ export default function DashboardPanel({ profile, onProfileUpdate }: DashboardPa
             </div>
 
             {/* Water */}
-            <div className="rounded-2xl bg-[#111] border border-[#1C1C1C] p-6 card-lift">
+            <div className="rounded-2xl bg-[#161616] border border-[#222222] p-6 card-lift">
               <div className="flex items-center gap-2 text-[var(--blue)] mb-4">
                 <IconDroplet />
                 <p className="text-xs font-black uppercase tracking-widest" style={{ fontFamily: 'var(--font-display)' }}>HIDRATAÇÃO</p>
@@ -189,7 +189,7 @@ export default function DashboardPanel({ profile, onProfileUpdate }: DashboardPa
             </div>
 
             {/* Training status */}
-            <div className="rounded-2xl bg-[#111] border border-[#1C1C1C] p-6 card-lift">
+            <div className="rounded-2xl bg-[#161616] border border-[#222222] p-6 card-lift">
               <div className="flex items-center gap-2 text-[var(--green)] mb-4">
                 <IconDumbbell />
                 <p className="text-xs font-black uppercase tracking-widest" style={{ fontFamily: 'var(--font-display)' }}>TREINO DE HOJE</p>
@@ -218,26 +218,26 @@ export default function DashboardPanel({ profile, onProfileUpdate }: DashboardPa
         {/* Trend chart */}
         {chartData.length >= 2 && (
           <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-            className="rounded-2xl bg-[#111] border border-[#1C1C1C] p-6 card-lift">
+            className="rounded-2xl bg-[#161616] border border-[#222222] p-6 card-lift">
             <p className="text-xs font-black uppercase tracking-widest text-[#555] mb-4" style={{ fontFamily: 'var(--font-display)' }}>EVOLUÇÃO DO SCORE</p>
             <div style={{ width: '100%', height: 220 }}>
               <ResponsiveContainer>
                 <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="scoreGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#E8002D" stopOpacity={0.35} />
-                      <stop offset="100%" stopColor="#E8002D" stopOpacity={0} />
+                      <stop offset="0%" stopColor="#FF3B30" stopOpacity={0.35} />
+                      <stop offset="100%" stopColor="#FF3B30" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid stroke="#1C1C1C" vertical={false} />
+                  <CartesianGrid stroke="#222222" vertical={false} />
                   <XAxis dataKey="date" stroke="#444" tick={{ fontSize: 11, fill: '#666' }} axisLine={false} tickLine={false} />
                   <YAxis domain={[0, 10]} stroke="#444" tick={{ fontSize: 11, fill: '#666' }} axisLine={false} tickLine={false} width={28} />
                   <Tooltip
-                    contentStyle={{ background: '#1A1A1A', border: '1px solid #252525', borderRadius: 8, fontSize: 12 }}
+                    contentStyle={{ background: '#1B1B1B', border: '1px solid #2A2A2A', borderRadius: 8, fontSize: 12 }}
                     labelStyle={{ color: '#999' }}
-                    itemStyle={{ color: '#E8002D' }}
+                    itemStyle={{ color: '#FF3B30' }}
                   />
-                  <Area type="monotone" dataKey="score" stroke="#E8002D" strokeWidth={2.5} fill="url(#scoreGradient)" dot={{ fill: '#E8002D', r: 3 }} />
+                  <Area type="monotone" dataKey="score" stroke="#FF3B30" strokeWidth={2.5} fill="url(#scoreGradient)" dot={{ fill: '#FF3B30', r: 3 }} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -253,7 +253,7 @@ export default function DashboardPanel({ profile, onProfileUpdate }: DashboardPa
             { id: 'chat', icon: IconChat, title: 'Chat com Coach', desc: 'Tire dúvidas sobre treino e dieta', color: 'var(--red)' },
           ].map(({ id, icon: Icon, title, desc, color }) => (
             <button key={id} onClick={() => setActiveTab(id)}
-              className="text-left rounded-2xl bg-[#111] border border-[#1C1C1C] p-6 card-lift group">
+              className="text-left rounded-2xl bg-[#161616] border border-[#222222] p-6 card-lift group">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style={{ background: `${color}1A`, border: `1px solid ${color}33`, color }}>
                 <Icon />
               </div>

@@ -6,13 +6,13 @@ const IconUsers = () => <svg width="32" height="32" viewBox="0 0 24 24" fill="no
 export default function CommunityPanel({ profile }: { profile: Profile; onProfileUpdate: any }) {
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#1C1C1C]">
+      <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#222222]">
         <h1 className="font-display text-3xl font-black text-white uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>COMUNIDADE</h1>
-        <p className="text-[#555] text-sm mt-0.5">Conecte-se com outros atletas de elite</p>
+        <p className="text-[#555] text-sm mt-0.5">Conecte-se com outras pessoas em evolução</p>
       </div>
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-20 h-20 rounded-2xl bg-[#111] border border-[#1C1C1C] flex items-center justify-center mx-auto mb-4 text-[#333]">
+          <div className="w-20 h-20 rounded-2xl bg-[#161616] border border-[#222222] flex items-center justify-center mx-auto mb-4 text-[#333]">
             <IconUsers />
           </div>
           <p className="text-white font-semibold mb-1">Em breve</p>
