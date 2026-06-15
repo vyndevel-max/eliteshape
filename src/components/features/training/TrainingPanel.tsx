@@ -91,7 +91,7 @@ function parseTrainingPlan(plan: string): Record<string, string[]> {
       // Extract sets portion
       const setsMatch = cleanLine.match(/(\d+)\s*[x×]\s*(\d+[-–]?\d*)/)
       if (setsMatch) {
-        const baseName = name.replace(/[:\-–]?\s*\d+\s*[x×]\s*\d+[-–]?\d*.*$/, '').trim()
+        const baseName = name.replace(/\s*[:\-–—]?\s*\d+\s*[x×]\s*\d+[-–]?\d*.*$/, '').trim()
         name = baseName + ' — ' + setsMatch[0].replace(/\s/g, '')
       }
       if (name.length > 3 && !result[currentDay].includes(name) && result[currentDay].length < 10) {
@@ -158,7 +158,7 @@ function findExerciseLineIndex(plan: string, targetDay: string, targetName: stri
       let name = cleanLine.replace(/^[-*•\d.)\s]+/, '').trim()
       const setsMatch = cleanLine.match(/(\d+)\s*[x×]\s*(\d+[-–]?\d*)/)
       if (setsMatch) {
-        const baseName = name.replace(/[:\-–]?\s*\d+\s*[x×]\s*\d+[-–]?\d*.*$/, '').trim()
+        const baseName = name.replace(/\s*[:\-–—]?\s*\d+\s*[x×]\s*\d+[-–]?\d*.*$/, '').trim()
         name = baseName + ' — ' + setsMatch[0].replace(/\s/g, '')
       }
       if (name === targetName) return i
@@ -444,15 +444,17 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
 
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#222222] flex items-center justify-between flex-shrink-0">
+      <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#222222] flex items-center justify-between flex-wrap gap-3 flex-shrink-0">
         <div>
           <h1 className="font-display text-3xl font-black text-white uppercase" style={{ fontFamily: 'var(--font-display)' }}>TREINO</h1>
           <p className="text-[#555] text-sm mt-0.5">Registro de carga por exercício</p>
         </div>
-        <div className="flex items-center gap-3">
-          <button onClick={markDone} className="btn btn-secondary btn-sm"><IconCheck />Marcar Feito</button>
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          <button onClick={markDone} className="btn btn-secondary btn-sm">
+            <IconCheck /><span className="hidden sm:inline">Marcar </span>Feito
+          </button>
           <button onClick={generatePlan} disabled={generating} className="btn btn-ghost btn-sm">
-            {generating ? <><IconLoader />Gerando...</> : 'Regenerar Plano'}
+            {generating ? <><IconLoader />Gerando...</> : <><span className="hidden sm:inline">Regenerar </span>Plano</>}
           </button>
         </div>
       </div>
@@ -583,21 +585,21 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
                       </AnimatePresence>
 
                       {/* Sets table */}
-                      <div className="px-5 pb-4">
+                      <div className="px-4 sm:px-5 pb-4 min-w-0">
                         {ex.sets.length > 0 && (
-                          <div className="grid grid-cols-[40px_1fr_1fr_28px] gap-2 text-[10px] uppercase tracking-widest text-[#333] mb-2 px-1">
-                            <span>Série</span><span>Reps</span><span>Carga (kg)</span><span></span>
+                          <div className="grid grid-cols-[32px_1fr_1fr_28px] gap-1.5 sm:gap-2 text-[10px] uppercase tracking-widest text-[#333] mb-2 px-1 min-w-0">
+                            <span>Nº</span><span>Reps</span><span>Carga (kg)</span><span></span>
                           </div>
                         )}
                         <div className="space-y-2">
                           {ex.sets.map((s, sIdx) => (
-                            <div key={sIdx} className="grid grid-cols-[40px_1fr_1fr_28px] gap-2 items-center">
+                            <div key={sIdx} className="grid grid-cols-[32px_1fr_1fr_28px] gap-1.5 sm:gap-2 items-center min-w-0">
                               <span className="text-xs text-[#444] font-mono text-center">#{sIdx + 1}</span>
                               <input type="number" value={s.reps} onChange={e => updateSet(selectedDay, exIdx, sIdx, 'reps', e.target.value)}
-                                className="bg-[#0A0A0A] border border-[#222222] rounded-lg px-3 py-2 text-sm text-white text-center focus:outline-none focus:border-[#FF3B30]/40 transition-colors"
+                                className="w-full min-w-0 bg-[#0A0A0A] border border-[#222222] rounded-lg px-2 sm:px-3 py-2 text-sm text-white text-center focus:outline-none focus:border-[#FF3B30]/40 transition-colors"
                                 placeholder="12" min="1" />
                               <input type="number" value={s.weight} onChange={e => updateSet(selectedDay, exIdx, sIdx, 'weight', e.target.value)}
-                                className="bg-[#0A0A0A] border border-[#222222] rounded-lg px-3 py-2 text-sm text-white text-center focus:outline-none focus:border-[#FF3B30]/40 transition-colors"
+                                className="w-full min-w-0 bg-[#0A0A0A] border border-[#222222] rounded-lg px-2 sm:px-3 py-2 text-sm text-white text-center focus:outline-none focus:border-[#FF3B30]/40 transition-colors"
                                 placeholder="—" step="0.5" />
                               <button onClick={() => removeSet(selectedDay, exIdx, sIdx)} className="text-[#333] hover:text-[#FF3B30] transition-colors flex items-center justify-center">
                                 <IconTrash />

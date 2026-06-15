@@ -3,11 +3,13 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
 import type { Profile } from '@/types/supabase'
 import toast from 'react-hot-toast'
 
 const IconSave = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
 const IconLoader = () => <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 1 1-6.219-8.56" strokeLinecap="round"/></svg>
+const IconLogout = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
 
 interface Field {
   key: keyof Profile
@@ -117,6 +119,13 @@ export default function ProfilePanel({ profile, onProfileUpdate }: ProfilePanelP
   const [form, setForm] = useState<Partial<Profile>>(profile)
   const [saving, setSaving] = useState(false)
   const supabase = createClient()
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push('/auth')
+    router.refresh()
+  }
 
   const set = (key: keyof Profile, value: any) => setForm(prev => ({ ...prev, [key]: value }))
 
@@ -222,7 +231,10 @@ export default function ProfilePanel({ profile, onProfileUpdate }: ProfilePanelP
           ))}
         </div>
 
-        <div className="mt-8 flex justify-end">
+        <div className="mt-8 flex flex-col-reverse sm:flex-row justify-between gap-3">
+          <button onClick={handleLogout} className="btn btn-secondary btn-lg !text-[#FF3B30] !border-[#FF3B30]/20 hover:!bg-[#FF3B30]/10">
+            <IconLogout />Sair da conta
+          </button>
           <button onClick={save} disabled={saving} className="btn btn-primary btn-lg">
             {saving ? <><IconLoader />Salvando...</> : <><IconSave />Salvar Perfil</>}
           </button>

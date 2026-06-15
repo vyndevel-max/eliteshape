@@ -175,7 +175,7 @@ body {
 
 .input:focus {
   border-color: var(--red);
-  box-shadow: 0 0 0 3px rgba(232,0,45,0.12);
+  box-shadow: 0 0 0 3px rgba(255, 59, 48,0.12);
 }
 
 .input-label {
@@ -317,7 +317,7 @@ select.input option { background: var(--surface-2); color: var(--text); }
 .prose-dark code {
   font-family: var(--font-mono);
   font-size: 0.85em;
-  background: rgba(232,0,45,0.1);
+  background: rgba(255, 59, 48,0.1);
   color: var(--red);
   padding: 2px 6px;
   border-radius: 3px;
@@ -378,8 +378,8 @@ select.input option { background: var(--surface-2); color: var(--text); }
 }
 .card-lift:hover {
   transform: translateY(-3px);
-  border-color: rgba(232, 0, 45, 0.25);
-  box-shadow: 0 12px 32px -16px rgba(232, 0, 45, 0.25);
+  border-color: rgba(255, 59, 48, 0.25);
+  box-shadow: 0 12px 32px -16px rgba(255, 59, 48, 0.25);
 }
 
 /* ============================================================
