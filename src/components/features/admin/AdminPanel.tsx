@@ -33,11 +33,11 @@ export default function AdminPanel({ profile }: AdminPanelProps) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="px-8 py-6 border-b border-[#1C1C1C]">
+      <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#1C1C1C]">
         <h1 className="font-display text-3xl font-black text-white uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>ADMIN</h1>
         <p className="text-[#555] text-sm mt-0.5">Painel de controle da plataforma</p>
       </div>
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-4 sm:p-8">
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           {[

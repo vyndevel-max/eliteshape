@@ -140,12 +140,12 @@ export default function ProfilePanel({ profile, onProfileUpdate }: ProfilePanelP
 
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="px-8 py-6 border-b border-[#1C1C1C] flex items-center justify-between">
+      <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#1C1C1C] flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="font-display text-3xl font-black text-white uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>PERFIL</h1>
           <p className="text-[#555] text-sm mt-0.5">Mantenha seus dados atualizados para melhores resultados</p>
         </div>
-        <button onClick={save} disabled={saving} className="btn btn-primary">
+        <button onClick={save} disabled={saving} className="btn btn-primary w-full sm:w-auto">
           {saving ? <><IconLoader />Salvando...</> : <><IconSave />Salvar Alterações</>}
         </button>
       </div>

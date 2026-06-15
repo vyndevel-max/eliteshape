@@ -136,7 +136,7 @@ export default function CoachPanel({ profile, onProfileUpdate }: CoachPanelProps
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
-      <div className="px-8 py-6 border-b border-[#1C1C1C] flex items-center justify-between flex-wrap gap-4">
+      <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#1C1C1C] flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="font-display text-3xl font-black text-white uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>
             ANÁLISE CORPORAL
@@ -149,7 +149,7 @@ export default function CoachPanel({ profile, onProfileUpdate }: CoachPanelProps
         </button>
       </div>
 
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-4 sm:p-8">
           <motion.div key="analysis" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               {!isProfileReady && (
                 <div className="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm">

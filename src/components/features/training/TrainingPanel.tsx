@@ -332,7 +332,7 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
   if (!profile.training_plan) {
     return (
       <div className="min-h-screen flex flex-col">
-        <div className="px-8 py-6 border-b border-[#1C1C1C]">
+        <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#1C1C1C]">
           <h1 className="font-display text-3xl font-black text-white uppercase" style={{ fontFamily: 'var(--font-display)' }}>TREINO</h1>
           <p className="text-[#555] text-sm mt-0.5">Protocolos personalizados com registro de carga</p>
         </div>
@@ -352,7 +352,7 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
 
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="px-8 py-6 border-b border-[#1C1C1C] flex items-center justify-between flex-shrink-0">
+      <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#1C1C1C] flex items-center justify-between flex-shrink-0">
         <div>
           <h1 className="font-display text-3xl font-black text-white uppercase" style={{ fontFamily: 'var(--font-display)' }}>TREINO</h1>
           <p className="text-[#555] text-sm mt-0.5">Registro de carga por exercício</p>
@@ -365,11 +365,11 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Days sidebar */}
-        <div className="w-56 border-r border-[#1C1C1C] flex-shrink-0 overflow-y-auto">
-          <div className="p-3 space-y-1">
-            <p className="text-[10px] font-black uppercase tracking-widest text-[#333] px-2 py-2" style={{ fontFamily: 'var(--font-display)' }}>SEMANA</p>
+        <div className="w-full lg:w-56 border-b lg:border-b-0 lg:border-r border-[#1C1C1C] flex-shrink-0 overflow-x-auto lg:overflow-y-auto no-scrollbar">
+          <div className="flex lg:block gap-2 lg:space-y-1 p-3 lg:pt-2">
+            <p className="hidden lg:block text-[10px] font-black uppercase tracking-widest text-[#333] px-2 py-2" style={{ fontFamily: 'var(--font-display)' }}>SEMANA</p>
             {orderedDays.map(day => {
               const isToday = day === todayPt
               const isSelected = day === selectedDay
@@ -378,7 +378,7 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
               const totalCount = d?.exercises.length || 0
               return (
                 <button key={day} onClick={() => setSelectedDay(day)}
-                  className={`w-full text-left rounded-xl p-3 border transition-all ${isSelected ? 'bg-[#E8002D]/10 border-[#E8002D]/40' : 'bg-transparent border-transparent hover:bg-[#111] hover:border-[#1C1C1C]'}`}>
+                  className={`flex-shrink-0 w-32 lg:w-full text-left rounded-xl p-3 border transition-all ${isSelected ? 'bg-[#E8002D]/10 border-[#E8002D]/40' : 'bg-transparent border-transparent hover:bg-[#111] hover:border-[#1C1C1C]'}`}>
                   <div className="flex items-center gap-1.5 mb-0.5">
                     <span className={`text-[11px] font-black uppercase tracking-wider ${isSelected ? 'text-[#E8002D]' : isToday ? 'text-[#E8002D]/60' : 'text-[#444]'}`} style={{ fontFamily: 'var(--font-display)' }}>{day}</span>
                     {isToday && <span className="text-[7px] bg-[#E8002D] text-white px-1 py-0.5 rounded font-bold">HOJE</span>}
@@ -400,7 +400,7 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
         </div>
 
         {/* Main content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 lg:p-6">
           {selectedDay && currentDay ? (
             <div className="max-w-2xl">
               <div className="mb-6">
@@ -423,8 +423,8 @@ export default function TrainingPanel({ profile, onProfileUpdate }: TrainingPane
                   {currentDay.exercises.map((ex, exIdx) => (
                     <div key={exIdx} className={`rounded-2xl border transition-all ${ex.saved ? 'bg-[#0E1A0E] border-[#1A3A1A]' : 'bg-[#111] border-[#1C1C1C]'}`}>
                       {/* Exercise header */}
-                      <div className="px-5 py-4 flex items-center justify-between">
-                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <div className="px-4 sm:px-5 py-4 flex items-center justify-between flex-wrap gap-2">
+                        <div className="flex items-center gap-2 flex-1 min-w-0 basis-full sm:basis-auto">
                           {ex.saved && <span className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><IconCheck /></span>}
                           {!ex.saved && <span className="flex-shrink-0 w-2 h-2 rounded-full bg-[#E8002D]" />}
                           <span className="font-semibold text-white text-sm truncate">{ex.name}</span>

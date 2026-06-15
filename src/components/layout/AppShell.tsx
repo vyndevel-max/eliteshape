@@ -103,14 +103,15 @@ const IconChevron = () => (
 interface NavItem {
   id: string
   label: string
+  mobileLabel?: string
   Icon: () => JSX.Element
   adminOnly?: boolean
 }
 
 const NAV_ITEMS: NavItem[] = [
   { id: 'dashboard', label: 'Início', Icon: IconHome },
-  { id: 'coach', label: 'Análise Corporal', Icon: IconBrain },
-  { id: 'chat', label: 'Chat com Coach', Icon: IconChat },
+  { id: 'coach', label: 'Análise Corporal', mobileLabel: 'Análise', Icon: IconBrain },
+  { id: 'chat', label: 'Chat com Coach', mobileLabel: 'Chat', Icon: IconChat },
   { id: 'training', label: 'Treino', Icon: IconDumbbell },
   { id: 'nutrition', label: 'Nutrição', Icon: IconUtensils },
   { id: 'profile', label: 'Perfil', Icon: IconUser },
@@ -165,12 +166,12 @@ export default function AppShell({ initialProfile }: AppShellProps) {
         <OnboardingQuiz profile={profile} onComplete={handleProfileUpdate} />
       )}
       {/* ====================================================
-          SIDEBAR
+          SIDEBAR (desktop only)
       ==================================================== */}
       <motion.aside
         animate={{ width: collapsed ? 72 : 260 }}
         transition={{ duration: 0.25, ease: 'easeInOut' }}
-        className="flex-shrink-0 h-screen sticky top-0 bg-[#0C0C0C] border-r border-[#1C1C1C] flex flex-col overflow-hidden z-20"
+        className="hidden lg:flex flex-shrink-0 h-screen sticky top-0 bg-[#0C0C0C] border-r border-[#1C1C1C] flex-col overflow-hidden z-20"
       >
         {/* Logo */}
         <div className="p-5 flex items-center gap-3 border-b border-[#1C1C1C]">
@@ -287,7 +288,7 @@ export default function AppShell({ initialProfile }: AppShellProps) {
       {/* ====================================================
           MAIN CONTENT
       ==================================================== */}
-      <main className="flex-1 min-w-0 overflow-y-auto">
+      <main className="flex-1 w-full min-w-0 overflow-y-auto overflow-x-hidden pb-28 lg:pb-0">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -306,6 +307,32 @@ export default function AppShell({ initialProfile }: AppShellProps) {
           </motion.div>
         </AnimatePresence>
       </main>
+
+      {/* ====================================================
+          BOTTOM NAV (mobile only)
+      ==================================================== */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#0C0C0C] border-t border-[#1C1C1C] pb-[env(safe-area-inset-bottom)]">
+        <div className="flex items-stretch overflow-x-auto no-scrollbar">
+          {navItems.map(({ id, label, mobileLabel, Icon }) => {
+            const isActive = activeTab === id
+            return (
+              <button
+                key={id}
+                onClick={() => setActiveTab(id)}
+                className={`flex-1 min-w-[64px] flex flex-col items-center justify-center gap-1 py-2.5 px-1 transition-colors relative ${
+                  isActive ? 'text-[#E8002D]' : 'text-[#555]'
+                }`}
+              >
+                {isActive && (
+                  <motion.span layoutId="mobile-nav-active" className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-[#E8002D] rounded-full" transition={{ duration: 0.2 }} />
+                )}
+                <Icon />
+                <span className="text-[9px] font-medium leading-none text-center truncate max-w-full px-0.5">{mobileLabel || label}</span>
+              </button>
+            )
+          })}
+        </div>
+      </nav>
     </div>
   )
 }

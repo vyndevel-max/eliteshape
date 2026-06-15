@@ -6,7 +6,7 @@ const IconUsers = () => <svg width="32" height="32" viewBox="0 0 24 24" fill="no
 export default function CommunityPanel({ profile }: { profile: Profile; onProfileUpdate: any }) {
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="px-8 py-6 border-b border-[#1C1C1C]">
+      <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#1C1C1C]">
         <h1 className="font-display text-3xl font-black text-white uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>COMUNIDADE</h1>
         <p className="text-[#555] text-sm mt-0.5">Conecte-se com outros atletas de elite</p>
       </div>

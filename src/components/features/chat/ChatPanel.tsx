@@ -159,21 +159,21 @@ Gordura alvo: ${profile.target_fat}g
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
-      <div className="px-8 py-5 border-b border-[#1C1C1C] flex items-center gap-4 flex-shrink-0">
-        <div className="w-10 h-10 rounded-xl bg-[#E8002D]/10 border border-[#E8002D]/20 flex items-center justify-center text-[#E8002D]">
+      <div className="px-4 sm:px-8 py-4 sm:py-5 border-b border-[#1C1C1C] flex items-center gap-3 sm:gap-4 flex-wrap flex-shrink-0">
+        <div className="w-10 h-10 rounded-xl bg-[#E8002D]/10 border border-[#E8002D]/20 flex items-center justify-center text-[#E8002D] flex-shrink-0">
           <IconCoach />
         </div>
-        <div>
-          <h1 className="font-display text-2xl font-black text-white uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>CHAT COM O COACH</h1>
-          <p className="text-[#555] text-xs mt-0.5 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-            Coach online — responde sobre treino e nutrição
+        <div className="min-w-0 flex-1">
+          <h1 className="font-display text-lg sm:text-2xl font-black text-white uppercase tracking-wide truncate" style={{ fontFamily: 'var(--font-display)' }}>CHAT COM O COACH</h1>
+          <p className="text-[#555] text-xs mt-0.5 flex items-center gap-1.5 truncate">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse flex-shrink-0" />
+            <span className="truncate">Coach online — responde sobre treino e nutrição</span>
           </p>
         </div>
         {hasAnalysis && (
-          <div className="ml-auto flex items-center gap-2 bg-[#111] border border-[#1C1C1C] rounded-xl px-4 py-2">
+          <div className="flex items-center gap-2 bg-[#111] border border-[#1C1C1C] rounded-xl px-3 sm:px-4 py-2 flex-shrink-0">
             <IconZap />
-            <span className="text-xs text-[#666]">Análise carregada</span>
+            <span className="text-xs text-[#666] hidden sm:inline">Análise carregada</span>
             <span className="text-xs font-black text-[#E8002D]">{analysisContext?.overall_score}/10</span>
           </div>
         )}

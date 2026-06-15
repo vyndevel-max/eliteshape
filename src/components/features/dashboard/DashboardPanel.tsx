@@ -105,7 +105,7 @@ export default function DashboardPanel({ profile, onProfileUpdate }: DashboardPa
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <div className="px-8 py-6 border-b border-[#1C1C1C] flex items-center justify-between flex-wrap gap-4">
+      <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#1C1C1C] flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="font-display text-3xl font-black text-white uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>
             {greeting}, {firstName.toUpperCase()}
@@ -125,7 +125,7 @@ export default function DashboardPanel({ profile, onProfileUpdate }: DashboardPa
         )}
       </div>
 
-      <div className="p-8 space-y-6">
+      <div className="p-4 sm:p-8 space-y-6">
         {/* Hero row: score + daily summary */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
           {/* Score card */}

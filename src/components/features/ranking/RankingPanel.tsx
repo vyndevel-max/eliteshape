@@ -26,11 +26,11 @@ export default function RankingPanel({ profile }: { profile: Profile; onProfileU
 
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="px-8 py-6 border-b border-[#1C1C1C]">
+      <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-[#1C1C1C]">
         <h1 className="font-display text-3xl font-black text-white uppercase tracking-wide" style={{ fontFamily: 'var(--font-display)' }}>RANKING ELITE</h1>
         <p className="text-[#555] text-sm mt-0.5">Os atletas mais dedicados da plataforma</p>
       </div>
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-4 sm:p-8">
         {myRank > 0 && (
           <div className="rounded-2xl bg-[#E8002D]/10 border border-[#E8002D]/20 p-5 mb-6 flex items-center justify-between">
             <div>
