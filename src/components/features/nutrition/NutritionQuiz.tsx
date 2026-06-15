@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import type { Profile } from '@/types/supabase'
 import toast from 'react-hot-toast'
+import VoiceInputButton from '@/components/ui/VoiceInputButton'
 
 interface NutritionQuizProps { profile: Profile; onComplete: (data: Partial<Profile>) => void }
 
@@ -190,9 +191,15 @@ export default function NutritionQuiz({ profile, onComplete }: NutritionQuizProp
                 )}
 
                 {field.type === 'textarea' && (
-                  <textarea value={form[field.key] || ''} onChange={e => set(field.key, e.target.value)}
-                    placeholder={(field as any).placeholder} rows={3}
-                    className="w-full bg-[#0E0E0E] border border-[#1C1C1C] rounded-xl px-5 py-4 text-white text-sm placeholder-[#333] resize-none focus:outline-none focus:border-[#F59E0B]/40" />
+                  <div className="relative">
+                    <textarea value={form[field.key] || ''} onChange={e => set(field.key, e.target.value)}
+                      placeholder={(field as any).placeholder} rows={3}
+                      className="w-full bg-[#0E0E0E] border border-[#1C1C1C] rounded-xl px-5 py-4 pr-14 text-white text-sm placeholder-[#333] resize-none focus:outline-none focus:border-[#F59E0B]/40" />
+                    <div className="absolute bottom-3 right-3">
+                      <VoiceInputButton size="sm"
+                        onResult={text => set(field.key, form[field.key] ? `${form[field.key]} ${text}` : text)} />
+                    </div>
+                  </div>
                 )}
               </div>
             ))}

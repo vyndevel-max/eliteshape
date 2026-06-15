@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import type { Profile } from '@/types/supabase'
 import toast from 'react-hot-toast'
+import VoiceInputButton from '@/components/ui/VoiceInputButton'
 
 // SVG icons for quiz cards
 const Icons: Record<string, JSX.Element> = {
@@ -175,9 +176,15 @@ export default function OnboardingQuiz({ profile, onComplete }: OnboardingQuizPr
                 <label className="text-[11px] font-black uppercase tracking-widest text-[#555] mb-3 block" style={{ fontFamily: 'var(--font-display)' }}>{field.label}</label>
 
                 {field.type === 'text' && (
-                  <input type="text" value={form[field.key] || ''} onChange={e => set(field.key, e.target.value)}
-                    placeholder={field.placeholder} autoFocus
-                    className="w-full bg-[#0E0E0E] border border-[#1C1C1C] rounded-xl px-5 py-4 text-white text-lg placeholder-[#333] focus:outline-none focus:border-[#E8002D]/50 transition-colors" />
+                  <div className="relative">
+                    <input type="text" value={form[field.key] || ''} onChange={e => set(field.key, e.target.value)}
+                      placeholder={field.placeholder} autoFocus
+                      className="w-full bg-[#0E0E0E] border border-[#1C1C1C] rounded-xl px-5 py-4 pr-16 text-white text-lg placeholder-[#333] focus:outline-none focus:border-[#E8002D]/50 transition-colors" />
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <VoiceInputButton size="sm"
+                        onResult={text => set(field.key, form[field.key] ? `${form[field.key]} ${text}` : text)} />
+                    </div>
+                  </div>
                 )}
                 {field.type === 'number' && (
                   <div className="relative">
@@ -188,9 +195,15 @@ export default function OnboardingQuiz({ profile, onComplete }: OnboardingQuizPr
                   </div>
                 )}
                 {field.type === 'textarea' && (
-                  <textarea value={form[field.key] || ''} onChange={e => set(field.key, e.target.value)}
-                    placeholder={field.placeholder} rows={3}
-                    className="w-full bg-[#0E0E0E] border border-[#1C1C1C] rounded-xl px-5 py-4 text-white text-sm placeholder-[#333] resize-none focus:outline-none focus:border-[#E8002D]/50 transition-colors" />
+                  <div className="relative">
+                    <textarea value={form[field.key] || ''} onChange={e => set(field.key, e.target.value)}
+                      placeholder={field.placeholder} rows={3}
+                      className="w-full bg-[#0E0E0E] border border-[#1C1C1C] rounded-xl px-5 py-4 pr-14 text-white text-sm placeholder-[#333] resize-none focus:outline-none focus:border-[#E8002D]/50 transition-colors" />
+                    <div className="absolute bottom-3 right-3">
+                      <VoiceInputButton size="sm"
+                        onResult={text => set(field.key, form[field.key] ? `${form[field.key]} ${text}` : text)} />
+                    </div>
+                  </div>
                 )}
                 {field.type === 'toggle' && (
                   <div className="flex items-center gap-4">

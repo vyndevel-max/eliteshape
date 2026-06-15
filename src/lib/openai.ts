@@ -181,7 +181,7 @@ Retorne APENAS JSON válido com esta estrutura exata:
     }
   },
   "training_plan": "<plano detalhado em markdown COM DIAS DA SEMANA EM PORTUGUÊS, exercícios específicos com séries e reps. Use: Segunda-feira, Terça-feira etc>",
-  "nutrition_plan": "<plano nutricional detalhado em markdown em pt-BR>"
+  "nutrition_plan": "<plano nutricional detalhado em markdown em pt-BR. OBRIGATÓRIO: cada alimento DEVE ter quantidade exata em gramas, ml ou unidades — ex: '150g de frango grelhado', '200g de arroz integral cozido', '2 ovos inteiros', '1 banana média', '30g de aveia'. NUNCA liste um alimento sem quantidade. Divida por refeições (Café da manhã, Almoço, Jantar, Lanches, Pré-treino, Pós-treino).${(profile as any).available_foods ? ' PRIORIZE estes alimentos que o aluno já tem em casa: ' + (profile as any).available_foods + '.' : ''}${(profile as any).food_intolerances?.length ? ' Evite: ' + (profile as any).food_intolerances.join(', ') + '.' : ''}${(profile as any).disliked_foods ? ' Não inclua: ' + (profile as any).disliked_foods + '.' : ''}"
 }`
 
   const messageContent: OpenAI.ChatCompletionContentPart[] = [

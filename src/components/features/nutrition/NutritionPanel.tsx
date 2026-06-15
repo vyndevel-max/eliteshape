@@ -8,6 +8,7 @@ import toast from 'react-hot-toast'
 import Markdown from 'react-markdown'
 import { formatNumber, toBase64, resizeImage } from '@/lib/utils'
 import NutritionQuiz from './NutritionQuiz'
+import VoiceInputButton from '@/components/ui/VoiceInputButton'
 
 const IconPlus = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
 const IconLoader = () => <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 1 1-6.219-8.56" strokeLinecap="round"/></svg>
@@ -61,10 +62,16 @@ function parsePlan(plan: string): MealSection[] {
     if (/^[-*•]/.test(t) || /^\d+[.)]/.test(t) || (clean.length > 3 && clean.length < 80 && /[a-zA-ZÀ-ú]{3}/.test(clean))) {
       const foodName = clean.replace(/^[-*•\d.)\s]+/, '').trim()
       if (foodName.length > 2) {
-        // Extract quantity if present (e.g. "150g", "2 colheres", "1 unidade")
-        const qtyMatch = foodName.match(/(\d+\s*(?:g|ml|kg|l|colheres?|xícaras?|unidades?|fatias?|porções?|ovos?|copos?)?)/i)
-        const qty = qtyMatch ? qtyMatch[0] : ''
-        current.foods.push({ name: foodName, quantity: qty, swapOpen: false, swapReason: '', swapResult: '', swapLoading: false })
+        // Extract leading quantity (e.g. "150g de frango..." / "2 ovos inteiros" / "1 banana média")
+        const qtyMatch = foodName.match(/^(\d+[\d.,]*\s*(?:g|gramas?|ml|kg|l|litros?|colheres?(?:\s+de\s+(?:sopa|chá))?|x[íi]caras?|unidades?|fatias?|por[çc][õo]es?|ovos?|copos?|fil[ée]s?))\b\s*(?:de\s+)?/i)
+        let qty = ''
+        let name = foodName
+        if (qtyMatch) {
+          qty = qtyMatch[1].trim()
+          name = foodName.slice(qtyMatch[0].length).trim()
+          name = name.charAt(0).toUpperCase() + name.slice(1)
+        }
+        current.foods.push({ name, quantity: qty, swapOpen: false, swapReason: '', swapResult: '', swapLoading: false })
       }
     }
   }
@@ -122,8 +129,13 @@ function NutritionPlanView({ plan, profile }: { plan: string | null; profile: an
             {section.foods.map((food, fi) => (
               <div key={fi}>
                 <div className="px-6 py-3 flex items-center justify-between group">
-                  <div className="flex-1 min-w-0">
-                    <span className="text-white text-sm">{food.name}</span>
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    {food.quantity && (
+                      <span className="flex-shrink-0 font-mono text-[11px] font-bold text-[#F59E0B] bg-[#F59E0B]/10 border border-[#F59E0B]/25 rounded-lg px-2 py-1">
+                        {food.quantity}
+                      </span>
+                    )}
+                    <span className="text-white text-sm truncate">{food.name}</span>
                   </div>
                   <button onClick={() => updateFood(si, fi, { swapOpen: !food.swapOpen, swapResult: '', swapReason: '' })}
                     className={`ml-4 flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-all flex-shrink-0 ${food.swapOpen ? 'text-[#F59E0B] border-[#F59E0B]/30 bg-[#F59E0B]/5' : 'text-[#444] border-[#1C1C1C] hover:border-[#333] hover:text-[#999]'}`}>
@@ -322,17 +334,25 @@ export default function NutritionPanel({ profile, onProfileUpdate }: NutritionPa
 
                 {/* Text input - VISIBLE */}
                 <div className="mb-4">
-                  <textarea
-                    value={foodInput}
-                    onChange={e => setFoodInput(e.target.value)}
-                    placeholder={inputMode === 'photo'
-                      ? 'Adicione uma descrição (opcional)...'
-                      : 'Descreva o que comeu... Ex: 150g frango grelhado com arroz integral e salada'}
-                    rows={3}
-                    className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-xl px-4 py-3 text-white text-sm placeholder-[#444] resize-none focus:outline-none focus:border-[#E8002D]/50 transition-colors"
-                    onKeyDown={e => { if (e.key === 'Enter' && e.ctrlKey) addMeal() }}
-                  />
-                  <p className="text-xs text-[#444] mt-1">Ctrl+Enter para registrar</p>
+                  <div className="relative">
+                    <textarea
+                      value={foodInput}
+                      onChange={e => setFoodInput(e.target.value)}
+                      placeholder={inputMode === 'photo'
+                        ? 'Adicione uma descrição (opcional)...'
+                        : 'Descreva o que comeu... Ex: 150g frango grelhado com arroz integral e salada'}
+                      rows={3}
+                      className="w-full bg-[#0A0A0A] border border-[#2A2A2A] rounded-xl px-4 py-3 pr-14 text-white text-sm placeholder-[#444] resize-none focus:outline-none focus:border-[#E8002D]/50 transition-colors"
+                      onKeyDown={e => { if (e.key === 'Enter' && e.ctrlKey) addMeal() }}
+                    />
+                    <div className="absolute bottom-3 right-3">
+                      <VoiceInputButton
+                        size="sm"
+                        onResult={text => setFoodInput(prev => prev ? `${prev} ${text}` : text)}
+                      />
+                    </div>
+                  </div>
+                  <p className="text-xs text-[#444] mt-1">Ctrl+Enter para registrar · Toque no microfone para falar o que comeu</p>
                 </div>
 
                 <button onClick={addMeal} disabled={addingMeal || (!foodInput.trim() && !photoPreview)}
