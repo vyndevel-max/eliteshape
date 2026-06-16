@@ -29,6 +29,7 @@ interface DashboardPanelProps {
 }
 
 interface ShapeRow { fat_percentage: number | null; muscle_score: number | null; recorded_at: string }
+interface WeeklyPhotoRow { id: string; photo_url: string; week_number: number; year: number; score: number | null; fat_percentage: number | null; analysis_summary: string | null; recorded_at: string }
 
 const DAY_LABEL = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
 const MONTH_LABEL = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez']
@@ -45,6 +46,8 @@ export default function DashboardPanel({ profile, onProfileUpdate }: DashboardPa
   const [streak, setStreak] = useState(0)
   const [showCheckIn, setShowCheckIn] = useState(false)
   const [showEvolution, setShowEvolution] = useState(false)
+  const [weeklyPhotos, setWeeklyPhotos] = useState<WeeklyPhotoRow[]>([])
+  const [expandedPhoto, setExpandedPhoto] = useState<string | null>(null)
 
   const today = new Date().toISOString().split('T')[0]
   const now = new Date()
@@ -56,14 +59,16 @@ export default function DashboardPanel({ profile, onProfileUpdate }: DashboardPa
 
   const loadData = async () => {
     try {
-      const [shapeRes, mealsRes, waterRes, missionsRes] = await Promise.all([
+      const [shapeRes, weeklyPhotosRes, mealsRes, waterRes, missionsRes] = await Promise.all([
         supabase.from('shape_history').select('fat_percentage, muscle_score, recorded_at').eq('user_id', profile.id).order('recorded_at', { ascending: false }).limit(10),
+        supabase.from('weekly_photos' as any).select('*').eq('user_id', profile.id).order('recorded_at', { ascending: false }).limit(12),
         supabase.from('meals').select('calories, protein').eq('user_id', profile.id).gte('logged_at', today + 'T00:00:00'),
         supabase.from('water_logs').select('amount_ml').eq('user_id', profile.id).gte('logged_at', today + 'T00:00:00'),
         supabase.from('daily_missions' as any).select('date, training_done').eq('user_id', profile.id).order('date', { ascending: false }).limit(30),
       ])
 
       const shapeRows = (shapeRes.data || []) as ShapeRow[]
+      setWeeklyPhotos(((weeklyPhotosRes.data || []) as WeeklyPhotoRow[]).reverse())
       setLatestShape(shapeRows[0] || null)
       setShapeHistory([...shapeRows].reverse())
 
@@ -250,6 +255,75 @@ export default function DashboardPanel({ profile, onProfileUpdate }: DashboardPa
             </div>
           </motion.div>
         </div>
+
+        {/* ── LINHA DE FOTOS SEMANAIS ── */}
+        {weeklyPhotos.length > 0 && (
+          <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
+            className="rounded-2xl bg-[#161616] border border-[#222222] p-5 card-lift">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-xs font-black uppercase tracking-widest text-[#555]" style={{ fontFamily: 'var(--font-display)' }}>
+                EVOLUÇÃO SEMANAL — {weeklyPhotos.length} SEMANA{weeklyPhotos.length !== 1 ? 'S' : ''}
+              </p>
+              <button onClick={() => setShowEvolution(true)}
+                className="text-[10px] text-[#FF6A00] font-bold uppercase tracking-wider hover:text-[#FF3B30] transition-colors">
+                Ver tudo →
+              </button>
+            </div>
+
+            {/* Horizontal scroll strip */}
+            <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1">
+              {weeklyPhotos.map((photo) => (
+                <button key={photo.id} onClick={() => setExpandedPhoto(expandedPhoto === photo.id ? null : photo.id)}
+                  className={`flex-shrink-0 flex flex-col items-center gap-1.5 group transition-all ${expandedPhoto === photo.id ? 'opacity-100' : 'opacity-80 hover:opacity-100'}`}>
+                  {/* Thumbnail */}
+                  <div className={`w-14 h-20 sm:w-16 sm:h-24 rounded-xl overflow-hidden bg-[#1B1B1B] border-2 transition-all ${expandedPhoto === photo.id ? 'border-[#FF6A00]' : 'border-transparent group-hover:border-[#333]'}`}>
+                    {photo.photo_url ? (
+                      <img src={photo.photo_url} alt="" className="w-full h-full object-cover object-top"
+                        onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[#333]">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                      </div>
+                    )}
+                  </div>
+                  {/* Score badge */}
+                  {photo.score && (
+                    <span className={`text-[10px] font-black tabular-nums ${expandedPhoto === photo.id ? 'forge-gradient-text' : 'text-[#555]'}`}>
+                      {photo.score}/10
+                    </span>
+                  )}
+                  {/* Week label */}
+                  <span className="text-[9px] text-[#444] whitespace-nowrap">
+                    S{photo.week_number}
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {/* Expanded analysis card */}
+            {expandedPhoto && (() => {
+              const photo = weeklyPhotos.find(p => p.id === expandedPhoto)
+              if (!photo) return null
+              const d = new Date(photo.recorded_at)
+              return (
+                <div className="mt-4 rounded-xl bg-[#1B1B1B] border border-[#2A2A2A] p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-bold text-white">
+                      {d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </p>
+                    <div className="flex items-center gap-3">
+                      {photo.score && <span className="forge-gradient-text font-black text-sm">{photo.score}/10</span>}
+                      {photo.fat_percentage && <span className="text-[#666] text-xs">{photo.fat_percentage}% gordura</span>}
+                    </div>
+                  </div>
+                  {photo.analysis_summary && (
+                    <p className="text-[#888] text-xs leading-relaxed">{photo.analysis_summary}</p>
+                  )}
+                </div>
+              )
+            })()}
+          </motion.div>
+        )}
 
         {/* Trend chart */}
         {chartData.length >= 2 && (
