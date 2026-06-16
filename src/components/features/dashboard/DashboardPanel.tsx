@@ -105,6 +105,15 @@ export default function DashboardPanel({ profile, onProfileUpdate }: DashboardPa
     return { date: `${d.getDate()} ${MONTH_LABEL[d.getMonth()]}`, score: s.muscle_score ?? 0, fat: s.fat_percentage ?? 0 }
   })
 
+  // Days since last check-in
+  const lastCheckIn = shapeHistory.length > 0
+    ? [...shapeHistory].sort((a, b) => new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime())[0].recorded_at
+    : null
+  const daysSinceCheckIn = lastCheckIn
+    ? Math.floor((Date.now() - new Date(lastCheckIn).getTime()) / (1000 * 60 * 60 * 24))
+    : 999
+  const checkInDue = profile.onboarding_done && daysSinceCheckIn >= 7
+
   return (
     <div className="min-h-screen">
       {/* Header */}
