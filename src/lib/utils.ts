@@ -42,7 +42,7 @@ export function toBase64(file: File): Promise<string> {
   })
 }
 
-export function resizeImage(file: File, maxDimension = 1200, quality = 0.85): Promise<string> {
+export function resizeImage(file: File, maxDimension = 1024, quality = 0.75): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = (e) => {

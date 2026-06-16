@@ -54,7 +54,7 @@ export default function CoachPanel({ profile, onProfileUpdate }: CoachPanelProps
   const handleFiles = useCallback(async (files: FileList | File[]) => {
     const arr = Array.from(files).filter(f => f.type.startsWith('image/')).slice(0, 5)
     const processed = await Promise.all(arr.map(async (file) => {
-      const base64 = await resizeImage(file, 1200)
+      const base64 = await resizeImage(file, 1024)
       const preview = URL.createObjectURL(file)
       return { file, preview, base64 }
     }))

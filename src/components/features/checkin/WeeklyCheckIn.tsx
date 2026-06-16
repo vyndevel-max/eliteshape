@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
+import { resizeImage } from '@/lib/utils'
 import type { Profile } from '@/types/supabase'
 import toast from 'react-hot-toast'
 
@@ -40,17 +41,8 @@ interface Props {
 }
 
 /* ── Helper ──────────────────────────────────────────────── */
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => {
-      const b64 = (reader.result as string).split(',')[1]
-      resolve(b64)
-    }
-    reader.onerror = reject
-    reader.readAsDataURL(file)
-  })
-}
+// Comprime a imagem para max 1024px e JPEG 0.75 antes de enviar
+// Foto de celular típica (12MP, ~5MB) → ~150-300KB após compressão
 
 /* ── Component ───────────────────────────────────────────── */
 export default function WeeklyCheckIn({ profile, onProfileUpdate, onClose }: Props) {
@@ -153,7 +145,7 @@ export default function WeeklyCheckIn({ profile, onProfileUpdate, onClose }: Pro
     }, 3000)
 
     try {
-      const images = await Promise.all(photos.map(fileToBase64))
+      const images = await Promise.all(photos.map(p => resizeImage(p)))
       const [photoUrl] = await Promise.all([
         uploadPhoto(photos[0]),
       ])
