@@ -493,3 +493,151 @@ PERFIL DO ALUNO:
     return { intent: 'chat', reply: 'Pode repetir? Não entendi bem.' }
   }
 }
+
+// ============================================================
+// WEEKLY CHECK-IN — Compara foto atual com análise anterior
+// e decide se precisa adaptar treino/dieta
+// ============================================================
+export interface CheckInResult {
+  score: number
+  fat_percentage_estimate: number
+  evolution_summary: string
+  score_change: number
+  fat_change: number
+  detected_changes: string[]
+  training_adjustment: 'none' | 'minor' | 'major'
+  diet_adjustment: 'none' | 'minor' | 'major'
+  carb_cycle_recommended: boolean
+  new_training_plan?: string
+  new_nutrition_plan?: string
+  training_notes: string
+  diet_notes: string
+  motivational_message: string
+  keep_current_plan_reason?: string
+}
+
+export async function weeklyCheckIn(params: {
+  imageBase64Array: string[]
+  profile: Record<string, any>
+  previousAnalysis: {
+    overall_score?: number
+    fat_percentage_estimate?: number
+    strong_points?: string[]
+    weak_points?: string[]
+    muscle_mass?: string
+  }
+  weekStats: {
+    training_days: number
+    meal_days: number
+    weight_change?: number
+    avg_calories?: number
+  }
+  language: string
+  tdee: number
+}): Promise<CheckInResult> {
+  const { imageBase64Array, profile, previousAnalysis, weekStats, language, tdee } = params
+  const lang = language === 'pt' ? 'pt-BR' : 'en-US'
+
+  const systemPrompt = `Você é a Forge AI — um preparador físico e nutricionista especialista em acompanhamento semanal de evolução corporal.
+Sua função é comparar a foto atual do atleta com a análise anterior, detectar mudanças reais, e tomar decisões de ajuste no treino e na dieta.
+SEJA HONESTO e PRECISO — não exagere a evolução nem a minimize. O cliente confia em você para resultados reais.
+Responda APENAS com JSON válido, sem markdown, TUDO em ${lang}.`
+
+  const userPrompt = `
+ANÁLISE ANTERIOR (há 7 dias aproximadamente):
+- Score anterior: ${previousAnalysis.overall_score ?? 'N/A'}/10
+- % gordura anterior: ${previousAnalysis.fat_percentage_estimate ?? 'N/A'}%
+- Massa muscular: ${previousAnalysis.muscle_mass ?? 'N/A'}
+- Pontos fortes anteriores: ${previousAnalysis.strong_points?.join(', ') ?? 'N/A'}
+- Pontos fracos anteriores: ${previousAnalysis.weak_points?.join(', ') ?? 'N/A'}
+
+DADOS DO ATLETA:
+- Nome: ${profile.name} | Objetivo: ${profile.objective} | Nível: ${profile.training_level}
+- Peso atual: ${profile.weight}kg | Altura: ${profile.height}cm | Sexo: ${profile.gender}
+- TDEE: ${tdee} kcal/dia
+
+CONSISTÊNCIA NA SEMANA:
+- Dias treinados: ${weekStats.training_days}/7
+- Dias com refeições registradas: ${weekStats.meal_days}/7
+${weekStats.weight_change !== undefined ? `- Variação de peso na semana: ${weekStats.weight_change > 0 ? '+' : ''}${weekStats.weight_change}kg` : ''}
+${weekStats.avg_calories ? `- Média calórica diária: ${weekStats.avg_calories} kcal` : ''}
+
+PLANO ATUAL DE TREINO (primeiras 600 chars):
+${(profile.training_plan || 'Não definido').slice(0, 600)}
+
+PLANO ATUAL DE NUTRIÇÃO (primeiras 400 chars):
+${(profile.nutrition_plan || 'Não definido').slice(0, 400)}
+
+Olhe CUIDADOSAMENTE para a nova foto. Compare com os dados da semana anterior e retorne JSON exatamente nesta estrutura:
+{
+  "score": <novo score 1-10 baseado na foto atual>,
+  "fat_percentage_estimate": <nova % gordura estimada visualmente>,
+  "evolution_summary": "<resumo conciso de 2-3 frases do que mudou — seja honesto e específico>",
+  "score_change": <diferença vs score anterior, ex: +0.5 ou -0.3>,
+  "fat_change": <diferença vs gordura anterior, ex: -0.5 ou +0.2>,
+  "detected_changes": ["<mudança específica detectada na foto>", "<outra mudança>"],
+  "training_adjustment": "none" | "minor" | "major",
+  "diet_adjustment": "none" | "minor" | "major",
+  "carb_cycle_recommended": true | false,
+  "new_training_plan": "<novo plano COMPLETO em markdown SE training_adjustment = major, caso contrário omita ou null>",
+  "new_nutrition_plan": "<novo plano nutricional COMPLETO SE diet_adjustment = major, caso contrário omita ou null>",
+  "training_notes": "<explicação das mudanças ou confirmação de que o plano atual está ótimo>",
+  "diet_notes": "<ajustes específicos na dieta ou confirmação de que está no caminho certo${weekStats.avg_calories ? '. Média calórica da semana: ' + weekStats.avg_calories + ' kcal' : ''}>",
+  "motivational_message": "<mensagem personalizada, máx 2 frases, baseada no progresso real desta semana>",
+  "keep_current_plan_reason": "<SE training_adjustment = none: por que o plano atual ainda é o ideal>"
+}
+
+CRITÉRIOS DE AJUSTE:
+- training_adjustment = "major": trocar foco muscular, mudar split, ou progressão de nível
+- training_adjustment = "minor": ajustar volume/intensidade, adicionar/remover exercício pontual
+- training_adjustment = "none": plano atual ainda serve para os próximos 7 dias
+- diet_adjustment = "major": recalcular calorias, mudar macros significativamente, ciclo de carbos
+- diet_adjustment = "minor": ajustar 1-2 refeições, subir proteína, cortar um alimento
+- carb_cycle_recommended = true: quando o atleta está estagnado na perda de gordura há 2+ semanas
+`
+
+  const imageMessages = imageBase64Array.map(b64 => ({
+    type: 'image_url' as const,
+    image_url: { url: `data:image/jpeg;base64,${b64}`, detail: 'high' as const },
+  }))
+
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: [{ type: 'text', text: userPrompt }, ...imageMessages] },
+    ],
+    max_tokens: 2500,
+    temperature: 0.4,
+    response_format: { type: 'json_object' },
+  })
+
+  const raw = response.choices[0].message.content ?? '{}'
+  try {
+    const parsed = JSON.parse(raw)
+    return {
+      score: Number(parsed.score) || 0,
+      fat_percentage_estimate: Number(parsed.fat_percentage_estimate) || 0,
+      evolution_summary: parsed.evolution_summary || '',
+      score_change: Number(parsed.score_change) || 0,
+      fat_change: Number(parsed.fat_change) || 0,
+      detected_changes: Array.isArray(parsed.detected_changes) ? parsed.detected_changes : [],
+      training_adjustment: parsed.training_adjustment || 'none',
+      diet_adjustment: parsed.diet_adjustment || 'none',
+      carb_cycle_recommended: Boolean(parsed.carb_cycle_recommended),
+      new_training_plan: parsed.new_training_plan || undefined,
+      new_nutrition_plan: parsed.new_nutrition_plan || undefined,
+      training_notes: parsed.training_notes || '',
+      diet_notes: parsed.diet_notes || '',
+      motivational_message: parsed.motivational_message || '',
+      keep_current_plan_reason: parsed.keep_current_plan_reason || undefined,
+    }
+  } catch {
+    return {
+      score: 0, fat_percentage_estimate: 0, evolution_summary: 'Erro ao processar análise',
+      score_change: 0, fat_change: 0, detected_changes: [], training_adjustment: 'none',
+      diet_adjustment: 'none', carb_cycle_recommended: false, training_notes: '', diet_notes: '',
+      motivational_message: '',
+    }
+  }
+}
