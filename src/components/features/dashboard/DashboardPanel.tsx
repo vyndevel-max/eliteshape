@@ -43,6 +43,8 @@ export default function DashboardPanel({ profile, onProfileUpdate }: DashboardPa
   const [waterMl, setWaterMl] = useState(0)
   const [trainingDone, setTrainingDone] = useState(false)
   const [streak, setStreak] = useState(0)
+  const [showCheckIn, setShowCheckIn] = useState(false)
+  const [showEvolution, setShowEvolution] = useState(false)
 
   const today = new Date().toISOString().split('T')[0]
   const now = new Date()
