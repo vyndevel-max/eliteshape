@@ -138,6 +138,7 @@ interface AppShellProps {
 export default function AppShell({ initialProfile }: AppShellProps) {
   const [profile, setProfile] = useState<Profile | null>(initialProfile)
   const [collapsed, setCollapsed] = useState(false)
+  const [subscribing, setSubscribing] = useState(false)
   const { activeTab, setActiveTab } = useAppStore()
   const router = useRouter()
   const supabase = createClient()
@@ -148,6 +149,23 @@ export default function AppShell({ initialProfile }: AppShellProps) {
     await supabase.auth.signOut()
     router.push('/auth')
     router.refresh()
+  }
+
+  const handleSubscribe = async () => {
+    setSubscribing(true)
+    try {
+      const res = await fetch('/api/subscription/subscribe', { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erro ao iniciar assinatura')
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl
+      } else {
+        throw new Error('Link de pagamento não retornado')
+      }
+    } catch (e: any) {
+      toast.error(e.message || 'Erro ao iniciar assinatura')
+      setSubscribing(false)
+    }
   }
 
   const handleProfileUpdate = (updated: Partial<Profile>) => {
@@ -246,8 +264,8 @@ export default function AppShell({ initialProfile }: AppShellProps) {
               <p className="text-[11px] text-[#666] mb-3 leading-relaxed">
                 Libere o Diagnóstico Forge completo, fotos ilimitadas e receitas exclusivas.
               </p>
-              <button className="w-full py-2 bg-[#FF3B30] text-white text-[11px] font-black rounded-lg hover:bg-[#CC2E26] transition-colors tracking-wider" style={{ fontFamily: 'var(--font-display)' }}>
-                ASSINAR R$ 49,90/mês
+              <button onClick={handleSubscribe} disabled={subscribing} className="w-full py-2 bg-[#FF3B30] text-white text-[11px] font-black rounded-lg hover:bg-[#CC2E26] transition-colors tracking-wider disabled:opacity-50" style={{ fontFamily: 'var(--font-display)' }}>
+                {subscribing ? 'ABRINDO CHECKOUT...' : 'ASSINAR R$ 49,90/mês'}
               </button>
             </div>
           )}

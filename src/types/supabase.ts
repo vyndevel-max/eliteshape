@@ -10,6 +10,10 @@ export interface Database {
           name: string
           role: 'user' | 'admin'
           is_premium: boolean
+          mp_subscription_id: string | null
+          mp_customer_email: string | null
+          premium_status: string | null
+          premium_expires_at: string | null
           points: number
           language: 'pt' | 'en'
           theme: 'dark' | 'light'

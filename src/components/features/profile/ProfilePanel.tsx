@@ -118,6 +118,8 @@ interface ProfilePanelProps {
 export default function ProfilePanel({ profile, onProfileUpdate }: ProfilePanelProps) {
   const [form, setForm] = useState<Partial<Profile>>(profile)
   const [saving, setSaving] = useState(false)
+  const [subscribing, setSubscribing] = useState(false)
+  const [cancelling, setCancelling] = useState(false)
   const supabase = createClient()
   const router = useRouter()
 
@@ -125,6 +127,35 @@ export default function ProfilePanel({ profile, onProfileUpdate }: ProfilePanelP
     await supabase.auth.signOut()
     router.push('/auth')
     router.refresh()
+  }
+
+  const subscribe = async () => {
+    setSubscribing(true)
+    try {
+      const res = await fetch('/api/subscription/subscribe', { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erro ao iniciar assinatura')
+      if (data.checkoutUrl) window.location.href = data.checkoutUrl
+    } catch (e: any) {
+      toast.error(e.message || 'Erro ao iniciar assinatura')
+      setSubscribing(false)
+    }
+  }
+
+  const cancelSubscription = async () => {
+    if (!confirm('Tem certeza que deseja cancelar sua assinatura Premium?')) return
+    setCancelling(true)
+    try {
+      const res = await fetch('/api/subscription/cancel', { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erro ao cancelar')
+      onProfileUpdate({ is_premium: false } as any)
+      toast.success('Assinatura cancelada')
+    } catch (e: any) {
+      toast.error(e.message || 'Erro ao cancelar assinatura')
+    } finally {
+      setCancelling(false)
+    }
   }
 
   const set = (key: keyof Profile, value: any) => setForm(prev => ({ ...prev, [key]: value }))
@@ -179,6 +210,42 @@ export default function ProfilePanel({ profile, onProfileUpdate }: ProfilePanelP
           {pct < 100 && (
             <p className="text-xs text-[#555] mt-2">Complete seu perfil para análises mais precisas da IA</p>
           )}
+        </div>
+
+        {/* Subscription card */}
+        <div className="rounded-2xl bg-[#161616] border border-[#222222] p-6 mb-8">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <p className="text-xs font-black uppercase tracking-widest text-[#555] mb-1" style={{ fontFamily: 'var(--font-display)' }}>Assinatura</p>
+              {profile.is_premium ? (
+                <>
+                  <p className="text-white font-semibold flex items-center gap-2">
+                    <span className="forge-gradient-text">FORGE Premium</span>
+                    <span className="text-[10px] bg-[#22C55E]/15 text-[#22C55E] px-2 py-0.5 rounded-full font-bold uppercase">Ativo</span>
+                  </p>
+                  {(profile as any).premium_expires_at && (
+                    <p className="text-xs text-[#555] mt-1">
+                      Próxima cobrança: {new Date((profile as any).premium_expires_at).toLocaleDateString('pt-BR')}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <p className="text-[#999] text-sm">
+                  Plano Free — libere Diagnóstico Forge completo, fotos ilimitadas e Forge AI sem limites
+                </p>
+              )}
+            </div>
+            {profile.is_premium ? (
+              <button onClick={cancelSubscription} disabled={cancelling}
+                className="text-xs text-[#FF3B30] border border-[#FF3B30]/30 hover:bg-[#FF3B30]/10 rounded-xl px-4 py-2.5 transition-all disabled:opacity-50">
+                {cancelling ? 'Cancelando...' : 'Cancelar assinatura'}
+              </button>
+            ) : (
+              <button onClick={subscribe} disabled={subscribing} className="btn btn-primary disabled:opacity-50">
+                {subscribing ? 'Abrindo checkout...' : 'Assinar — R$ 49,90/mês'}
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Form Sections */}
