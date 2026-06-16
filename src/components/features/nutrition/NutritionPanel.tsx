@@ -60,18 +60,57 @@ function parsePlan(plan: string): MealSection[] {
     if (!current) continue
     // Food item line
     if (/^[-*•]/.test(t) || /^\d+[.)]/.test(t) || (clean.length > 3 && clean.length < 80 && /[a-zA-ZÀ-ú]{3}/.test(clean))) {
-      const foodName = clean.replace(/^[-*•\d.)\s]+/, '').trim()
+      const foodName = clean.replace(/^[-*•\d.)\s]+/, '').replace(/\*\*/g, '').trim()
       if (foodName.length > 2) {
-        // Extract leading quantity (e.g. "150g de frango..." / "2 ovos inteiros" / "1 banana média")
-        const qtyMatch = foodName.match(/^(\d+[\d.,]*\s*(?:g|gramas?|ml|kg|l|litros?|colheres?(?:\s+de\s+(?:sopa|chá))?|x[íi]caras?|unidades?|fatias?|por[çc][õo]es?|ovos?|copos?|fil[ée]s?))\b\s*(?:de\s+)?/i)
-        let qty = ''
-        let name = foodName
-        if (qtyMatch) {
-          qty = qtyMatch[1].trim()
-          name = foodName.slice(qtyMatch[0].length).trim()
-          name = name.charAt(0).toUpperCase() + name.slice(1)
+        let qty = '', name = foodName
+        let m: RegExpMatchArray | null
+
+        // 1. Leading quantity: "150g de frango", "200ml de leite"
+        m = foodName.match(/^(\d+[\d.,]*\s*(?:g|gramas?|ml|l(?:itros?)?|kg|colheres?(?:\s+de\s+(?:sopa|chá))?|x[íi]caras?|unidades?|fatias?|por[çc][õo]es?|ovos?|copos?|fil[ée]s?|kcal))\s*(?:de\s+)?/i)
+        if (m) {
+          qty = m[1].trim()
+          name = foodName.slice(m[0].length).trim()
+          name = name ? name[0].toUpperCase() + name.slice(1) : name
+        } else {
+          // 2. Trailing quantity: "Frango — 150g", "Arroz: 200g"
+          m = foodName.match(/[—\-–:,\s]+(\d+[\d.,]*\s*(?:g|gramas?|ml|l(?:itros?)?|kg|colheres?(?:\s+de\s+(?:sopa|chá))?|x[íi]caras?|unidades?|fatias?|por[çc][õo]es?|ovos?|copos?|fil[ée]s?|kcal))\s*$/i)
+          if (m) {
+            qty = m[1].trim()
+            name = foodName.slice(0, foodName.length - m[0].length).trim()
+          } else {
+            // 3. Parentheses: "Frango (150g)"
+            m = foodName.match(/\((\d+[\d.,]*\s*(?:g|gramas?|ml|l(?:itros?)?|kg|colheres?(?:\s+de\s+(?:sopa|chá))?|x[íi]caras?|unidades?|fatias?|por[çc][õo]es?|ovos?|copos?|fil[ée]s?|kcal))\)/i)
+            if (m) {
+              qty = m[1].trim()
+              name = foodName.replace(m[0], '').trim()
+            } else {
+              // 4. Mid-string: "Batata doce 150g cozida"
+              m = foodName.match(/\s+(\d+[\d.,]*\s*(?:g|gramas?|ml|l(?:itros?)?|kg|colheres?(?:\s+de\s+(?:sopa|chá))?|x[íi]caras?|unidades?|fatias?|por[çc][õo]es?|ovos?|copos?|fil[ée]s?|kcal))(?:\s|$)/i)
+              if (m) {
+                qty = m[1].trim()
+                name = (foodName.slice(0, m.index!) + ' ' + foodName.slice(m.index! + m[0].length)).trim()
+              } else {
+                // 5. Count + unit word: "2 ovos", "3 fatias", "1 xícara", "1 colher de sopa"
+                m = foodName.match(/^(\d+)\s+(ovos?|fatias?|x[íi]caras?|colheres?(?:\s+de\s+(?:sopa|chá))?|por[çc][õo]es?|unidades?|copos?)\s*/i)
+                if (m) {
+                  qty = m[1] + ' ' + m[2]
+                  name = foodName.slice(m[0].length).trim()
+                  name = name ? name[0].toUpperCase() + name.slice(1) : name
+                } else {
+                  // 6. Plain count ≤20: "2 bananas", "1 maçã"
+                  m = foodName.match(/^(\d+)\s+(.+)/)
+                  if (m && Number(m[1]) <= 20) {
+                    qty = m[1]
+                    name = m[2].trim()
+                    name = name[0].toUpperCase() + name.slice(1)
+                  }
+                }
+              }
+            }
+          }
         }
-        current.foods.push({ name, quantity: qty, swapOpen: false, swapReason: '', swapResult: '', swapLoading: false })
+
+        current.foods.push({ name: name || foodName, quantity: qty, swapOpen: false, swapReason: '', swapResult: '', swapLoading: false })
       }
     }
   }

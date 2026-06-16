@@ -181,7 +181,7 @@ Retorne APENAS JSON válido com esta estrutura exata:
     }
   },
   "training_plan": "<plano detalhado em markdown COM DIAS DA SEMANA EM PORTUGUÊS, exercícios específicos com séries e reps. Use: Segunda-feira, Terça-feira etc>",
-  "nutrition_plan": "<plano nutricional detalhado em markdown em pt-BR. OBRIGATÓRIO: cada alimento DEVE ter quantidade exata em gramas, ml ou unidades — ex: '150g de frango grelhado', '200g de arroz integral cozido', '2 ovos inteiros', '1 banana média', '30g de aveia'. NUNCA liste um alimento sem quantidade. Divida por refeições (Café da manhã, Almoço, Jantar, Lanches, Pré-treino, Pós-treino).${(profile as any).available_foods ? ' PRIORIZE estes alimentos que o aluno já tem em casa: ' + (profile as any).available_foods + '.' : ''}${(profile as any).food_intolerances?.length ? ' Evite: ' + (profile as any).food_intolerances.join(', ') + '.' : ''}${(profile as any).disliked_foods ? ' Não inclua: ' + (profile as any).disliked_foods + '.' : ''}"
+  "nutrition_plan": "<plano nutricional detalhado em markdown em pt-BR. REGRA OBRIGATÓRIA DE FORMATO: CADA linha de alimento DEVE começar com a quantidade — ex: '- 150g de frango grelhado', '- 200g de arroz integral cozido', '- 2 ovos inteiros', '- 1 banana média (100g)', '- 30g de aveia'. NUNCA liste um alimento sem quantidade no início da linha. Divida por refeições com título (## Café da manhã, ## Almoço, ## Jantar, ## Lanche, ## Pré-treino, ## Pós-treino).${(profile as any).available_foods ? ' PRIORIZE estes alimentos: ' + (profile as any).available_foods + '.' : ''}${(profile as any).food_intolerances?.length ? ' Evite: ' + (profile as any).food_intolerances.join(', ') + '.' : ''}${(profile as any).disliked_foods ? ' Não inclua: ' + (profile as any).disliked_foods + '.' : ''}"
 }`
 
   const messageContent: OpenAI.ChatCompletionContentPart[] = [
@@ -254,9 +254,9 @@ REGRAS DO PLANO DE TREINO:
 - Considere a rotina semanal e o orçamento informados para escolher exercícios viáveis (equipamentos disponíveis vs casa/academia simples)
 
 REGRAS DO PLANO NUTRICIONAL:
-- Com quantidades reais: "150g frango grelhado", "200g arroz integral cozido", "2 ovos inteiros"
-- Dividido por refeições: Café da manhã, Almoço, Jantar, Lanches, Pré-treino, Pós-treino
-- Adequado ao orçamento e preferências alimentares informadas
+- FORMATO OBRIGATÓRIO: cada linha de alimento DEVE começar com a quantidade — ex: "- 150g de frango grelhado", "- 200g de arroz integral cozido", "- 2 ovos inteiros", "- 30g de aveia"
+- NUNCA liste um alimento sem a quantidade no início da linha
+- Dividido por refeições com título (## Café da manhã, ## Almoço, ## Jantar, ## Lanche, ## Pré-treino, ## Pós-treino)
 - PRIORIZE os alimentos que o aluno já tem disponível em casa (se informado) — monte a maior parte do plano em torno deles
 - Respeite intolerâncias e alimentos que o aluno não come
 - Total de calorias próximo de ${tdee}kcal
