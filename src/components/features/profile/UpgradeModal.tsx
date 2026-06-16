@@ -24,8 +24,32 @@ export default function UpgradeModal({ onClose, onPremiumActivated }: Props) {
   const [subscribingCard, setSubscribingCard] = useState(false)
   const [loadingPix, setLoadingPix] = useState(false)
   const [pixData, setPixData] = useState<{ qrCode?: string; qrCodeBase64?: string; ticketUrl?: string } | null>(null)
+  const [couponCode, setCouponCode] = useState('')
+  const [couponApplied, setCouponApplied] = useState<{ couponId: string; finalPrice: number; code: string } | null>(null)
+  const [validatingCoupon, setValidatingCoupon] = useState(false)
+  const [showCouponInput, setShowCouponInput] = useState(false)
   const pollRef = useRef<NodeJS.Timeout | null>(null)
   const supabase = createClient()
+
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) return
+    setValidatingCoupon(true)
+    try {
+      const res = await fetch('/api/subscription/coupon', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: couponCode }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Cupom inválido')
+      setCouponApplied({ couponId: data.couponId, finalPrice: data.finalPrice, code: data.code })
+      toast.success(`Cupom ${data.code} aplicado!`)
+    } catch (e: any) {
+      toast.error(e.message || 'Cupom inválido')
+      setCouponApplied(null)
+    } finally {
+      setValidatingCoupon(false)
+    }
+  }
 
   useEffect(() => {
     return () => { if (pollRef.current) clearInterval(pollRef.current) }
@@ -47,7 +71,11 @@ export default function UpgradeModal({ onClose, onPremiumActivated }: Props) {
   const handlePixGenerate = async () => {
     setLoadingPix(true)
     try {
-      const res = await fetch('/api/subscription/pix', { method: 'POST' })
+      const res = await fetch('/api/subscription/pix', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(couponApplied ? { couponId: couponApplied.couponId } : {}),
+      })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Erro ao gerar Pix')
       setPixData({ qrCode: data.qrCode, qrCodeBase64: data.qrCodeBase64, ticketUrl: data.ticketUrl })
@@ -126,12 +154,54 @@ export default function UpgradeModal({ onClose, onPremiumActivated }: Props) {
                     <span className="w-10 h-10 rounded-xl bg-[#22C55E]/15 border border-[#22C55E]/30 flex items-center justify-center text-[#22C55E] flex-shrink-0"><IconPix /></span>
                     <div className="flex-1">
                       <p className="text-white font-bold text-sm">Pix — Só este mês</p>
-                      <p className="text-[#666] text-xs mt-0.5">R$ 49,90 · libera 30 dias, sem renovação automática</p>
+                      <p className="text-[#666] text-xs mt-0.5">
+                        {couponApplied ? (
+                          <>
+                            <span className="line-through text-[#555] mr-1.5">R$ 49,90</span>
+                            <span className="text-[#22C55E] font-bold">R$ {couponApplied.finalPrice.toFixed(2).replace('.', ',')}</span>
+                          </>
+                        ) : 'R$ 49,90'} · libera 30 dias, sem renovação automática
+                      </p>
                     </div>
                     {loadingPix && <IconLoader />}
                   </div>
                 </button>
               </div>
+
+              {/* Cupom de desconto — aplica-se ao pagamento via Pix */}
+              {!showCouponInput ? (
+                <button onClick={() => setShowCouponInput(true)} className="text-xs text-[#666] hover:text-[#999] mt-3 transition-colors">
+                  Tenho um cupom de desconto
+                </button>
+              ) : (
+                <div className="mt-3 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={couponCode}
+                      onChange={e => setCouponCode(e.target.value.toUpperCase())}
+                      onKeyDown={e => e.key === 'Enter' && applyCoupon()}
+                      placeholder="CÓDIGO DO CUPOM"
+                      disabled={!!couponApplied}
+                      className="flex-1 bg-[#0E0E0E] border border-[#2A2A2A] rounded-xl px-3 py-2.5 text-white text-sm placeholder-[#444] uppercase focus:outline-none focus:border-[#FF6A00]/40 disabled:opacity-50"
+                    />
+                    {!couponApplied ? (
+                      <button onClick={applyCoupon} disabled={validatingCoupon || !couponCode.trim()}
+                        className="px-4 py-2.5 rounded-xl bg-[#2A2A2A] text-white text-xs font-bold hover:bg-[#333] transition-all disabled:opacity-50">
+                        {validatingCoupon ? <IconLoader /> : 'Aplicar'}
+                      </button>
+                    ) : (
+                      <button onClick={() => { setCouponApplied(null); setCouponCode('') }}
+                        className="px-4 py-2.5 rounded-xl bg-[#FF3B30]/10 text-[#FF3B30] text-xs font-bold hover:bg-[#FF3B30]/20 transition-all">
+                        Remover
+                      </button>
+                    )}
+                  </div>
+                  {couponApplied && (
+                    <p className="text-[#22C55E] text-xs flex items-center gap-1.5"><IconCheck />Cupom {couponApplied.code} aplicado — válido para pagamento via Pix</p>
+                  )}
+                </div>
+              )}
 
               <p className="text-[#444] text-[11px] text-center mt-5">
                 Pagamento processado de forma segura pelo Mercado Pago

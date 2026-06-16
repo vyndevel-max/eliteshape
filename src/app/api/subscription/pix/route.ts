@@ -15,11 +15,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { couponId, amount: overrideAmount } = await req.json().catch(() => ({}))
+
+    // Se um cupom foi aplicado, valida de novo no servidor (nunca confia no preço do frontend)
+    let amount = 49.9
+    if (couponId) {
+      const { data: coupon } = await supabase.from('coupons').select('*').eq('id', couponId).eq('active', true).single()
+      if (coupon) {
+        if (coupon.discount_type === 'percent') amount = Math.max(0.01, 49.9 - (49.9 * coupon.discount_value) / 100)
+        else if (coupon.discount_type === 'fixed_amount') amount = Math.max(0.01, 49.9 - coupon.discount_value)
+        else if (coupon.discount_type === 'fixed_price') amount = Math.max(0.01, coupon.discount_value)
+        amount = Math.round(amount * 100) / 100
+      }
+    }
+
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://eliteshape-eta.vercel.app'
 
     const payment = await createPixPayment({
-      amount: 49.9,
-      description: 'FORGE Premium — 30 dias',
+      amount,
+      description: couponId ? 'FORGE Premium — 30 dias (com cupom)' : 'FORGE Premium — 30 dias',
       payerEmail: user.email,
       externalReference: user.id,
       notificationUrl: `${appUrl}/api/subscription/webhook`,
@@ -34,17 +48,26 @@ export async function POST(req: NextRequest) {
       user_id: user.id,
       mp_payment_id: payment.id,
       event_type: 'pix_payment_created',
-      amount: 49.9,
+      amount,
       status: payment.status,
       raw_payload: payment,
     })
+
+    // Registra o uso do cupom imediatamente (evita reuso em paralelo) —
+    // se o pagamento acabar não sendo aprovado, isso é uma perda aceitável
+    // para um cupom promocional/teste; ajuste se precisar de regra mais estrita.
+    if (couponId) {
+      await supabase.from('coupon_uses').insert({ coupon_id: couponId, user_id: user.id })
+      const { data: c } = await supabase.from('coupons').select('uses_count').eq('id', couponId).single()
+      if (c) await supabase.from('coupons').update({ uses_count: (c.uses_count || 0) + 1 }).eq('id', couponId)
+    }
 
     const { data: profileData } = await supabase.from('profiles').select('name').eq('id', user.id).single()
     notifyDiscord({
       status: 'pending',
       userName: profileData?.name,
       userEmail: user.email,
-      amount: 49.9,
+      amount,
       method: 'pix',
       paymentId: payment.id,
     })
@@ -54,6 +77,7 @@ export async function POST(req: NextRequest) {
       qrCode: payment.qr_code,
       qrCodeBase64: payment.qr_code_base64,
       ticketUrl: payment.ticket_url,
+      amount,
     })
   } catch (e: any) {
     console.error('pix payment error', e)
