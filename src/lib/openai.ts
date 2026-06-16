@@ -144,7 +144,9 @@ PLANO DE TREINO — COMO UM TREINADOR REAL:
 - Se tem base moderada: 3-4 exercícios por grupo
 - Se é iniciante: 2-3 exercícios por grupo, básicos
 - SEMPRE especifique séries e repetições reais: "4x10-12", "5x8-10", "3x15"
-- Distribua 5-6 dias de treino se o nível permitir
+- Distribua os dias de treino exatamente conforme a rotina informada pelo atleta (${profile.routine || 'não informado'}). Se ele treina 3x, monte 3 dias. Se treina 5x, monte 5 dias. NÃO adicione treinos em dias que ele não tem disponibilidade
+- NUNCA force Quarta-feira como descanso ou cardio leve — distribua os dias livres de forma inteligente com base nos grupos musculares treinados antes e depois
+- Os dias de descanso devem estar no mínimo a cada 2 dias de treino intenso para recuperação adequada
 
 MENSAGEM MOTIVACIONAL: personalizada para o físico desta pessoa, chame de campeão/campeã, mencione o que você viu de específico na foto, seja entusiasmado e direto
 
@@ -161,13 +163,13 @@ Retorne APENAS JSON válido com esta estrutura exata:
   "motivational_message": "<mensagem motivacional personalizada em pt-BR no estilo ${profile.personality_mode || 'motivational'}>",
   "estimated_timeframe": "<prazo realista em pt-BR>",
   "week_protocol": {
-    "Segunda": "<treino específico para o físico desta pessoa>",
-    "Terça": "<treino>",
-    "Quarta": "<treino ou recuperação>",
-    "Quinta": "<treino>",
-    "Sexta": "<treino>",
-    "Sábado": "<treino ou recuperação>",
-    "Domingo": "<descanso>"
+    "Segunda": "<grupo muscular treinado ou 'Descanso'>",
+    "Terça": "<grupo muscular treinado ou 'Descanso'>",
+    "Quarta": "<grupo muscular treinado ou 'Descanso' — NÃO force descanso aqui, decida baseado nos dias disponíveis do atleta>",
+    "Quinta": "<grupo muscular treinado ou 'Descanso'>",
+    "Sexta": "<grupo muscular treinado ou 'Descanso'>",
+    "Sábado": "<grupo muscular treinado ou 'Descanso'>",
+    "Domingo": "<grupo muscular treinado ou 'Descanso'>"
   },
   "nutrition_schedule": {
     "target_calories": ${tdee - 300},
@@ -250,8 +252,10 @@ REGRAS DO PLANO DE TREINO:
 - Adapte para lesões/condições de saúde informadas
 - Use dias da semana em PT: Segunda-feira, Terça-feira, etc
 - Chame de campeão/campeã na mensagem motivacional
-- VARIEDADE OBRIGATÓRIA: este plano é PARA ESTE ALUNO ESPECÍFICO — não repita sempre o mesmo "pacote padrão" (supino reto, rosca direta, puxada alta...). Escolha variações específicas de acordo com objetivo, nível e rotina (ex: supino inclinado com halteres, crucifixo no cabo, remada cavalinho, elevação pélvica, afundo búlgaro, face pull) para que o plano pareça desenhado sob medida, não genérico
-- Considere a rotina semanal e o orçamento informados para escolher exercícios viáveis (equipamentos disponíveis vs casa/academia simples)
+- VARIEDADE OBRIGATÓRIA: escolha exercícios específicos para este aluno (ex: supino inclinado com halteres, crucifixo no cabo, remada cavalinho, afundo búlgaro, face pull) — nada genérico
+- ROTINA REAL: respeite EXATAMENTE os dias disponíveis informados pelo aluno (rotina: ${profile.routine || 'não informado'}). Se treina 3x, monte 3 dias. Se treina 5x, monte 5 dias
+- NUNCA coloque Quarta-feira (ou qualquer outro dia fixo) como descanso ou cardio leve por padrão — distribua os descansos de forma inteligente entre os grupos musculares treinados, sempre que os dias livres caírem naturalmente
+- Cardio leve ou ativo recovery só se o atleta pediu explicitamente ou se o objetivo é emagrecimento com carga de treino alta
 
 REGRAS DO PLANO NUTRICIONAL:
 - FORMATO OBRIGATÓRIO: cada linha de alimento DEVE começar com a quantidade — ex: "- 150g de frango grelhado", "- 200g de arroz integral cozido", "- 2 ovos inteiros", "- 30g de aveia"

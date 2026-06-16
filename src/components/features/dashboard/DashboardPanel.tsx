@@ -10,6 +10,7 @@ import { formatNumber } from '@/lib/utils'
 import RadialScore from '@/components/ui/RadialScore'
 import AnimatedNumber from '@/components/ui/AnimatedNumber'
 import WeeklyCheckIn from '@/components/features/checkin/WeeklyCheckIn'
+import EvolutionPhotos from '@/components/features/checkin/EvolutionPhotos'
 
 // ---- Icons ----
 const IconFlame = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 17c1.38 0 2-1 2-2.5 0-1.5-1-2.5-1-4 0-1.5 1-3 1-3s2 2 2 5c0 3-2 5-5 5-3 0-5-2-5-5 0-2 1-3.5 2.5-5.5C8.5 5.5 9 4 9 2c0 0 2 1.5 2 4 0 1-.5 2-.5 2" /></svg>
@@ -134,7 +135,7 @@ export default function DashboardPanel({ profile, onProfileUpdate }: DashboardPa
           <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
             className="lg:col-span-4 rounded-2xl bg-[#161616] border border-[#222222] p-6 flex flex-col items-center justify-center text-center card-lift">
             {/* Check-in due banner */}
-            {checkInDue && (
+            {checkInDue ? (
               <button onClick={() => setShowCheckIn(true)}
                 className="w-full mb-5 rounded-2xl bg-[#FF6A00]/10 border border-[#FF6A00]/30 hover:border-[#FF6A00]/60 p-4 flex items-center gap-3 transition-all text-left group">
                 <span className="w-10 h-10 rounded-xl forge-gradient-bg flex items-center justify-center flex-shrink-0"><IconCalendar /></span>
@@ -143,6 +144,16 @@ export default function DashboardPanel({ profile, onProfileUpdate }: DashboardPa
                   <p className="text-[#FF6A00]/60 text-xs mt-0.5">{daysSinceCheckIn === 999 ? 'Faça sua primeira análise de acompanhamento' : `Última análise há ${daysSinceCheckIn} dias — hora de ver sua evolução!`}</p>
                 </div>
                 <svg className="text-[#FF6A00]/50 group-hover:text-[#FF6A00] transition-colors flex-shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+              </button>
+            ) : shapeHistory.length > 0 && (
+              <button onClick={() => setShowEvolution(true)}
+                className="w-full mb-5 rounded-2xl bg-[#1B1B1B] border border-[#2A2A2A] hover:border-[#333] p-4 flex items-center gap-3 transition-all text-left group">
+                <span className="w-10 h-10 rounded-xl bg-[#FF6A00]/10 border border-[#FF6A00]/20 flex items-center justify-center flex-shrink-0 text-[#FF6A00]"><IconCalendar /></span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-white font-bold text-sm">Ver evolução por fotos</p>
+                  <p className="text-[#555] text-xs mt-0.5">Próximo check-in em {7 - daysSinceCheckIn} dia{7 - daysSinceCheckIn !== 1 ? 's' : ''}</p>
+                </div>
+                <svg className="text-[#444] group-hover:text-[#999] transition-colors flex-shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
               </button>
             )}
             <p className="text-xs font-black uppercase tracking-widest text-[#555] mb-4" style={{ fontFamily: 'var(--font-display)' }}>FORGE SCORE</p>
@@ -286,6 +297,13 @@ export default function DashboardPanel({ profile, onProfileUpdate }: DashboardPa
           profile={profile}
           onProfileUpdate={onProfileUpdate}
           onClose={() => setShowCheckIn(false)}
+        />
+      )}
+      {showEvolution && (
+        <EvolutionPhotos
+          profile={profile}
+          onClose={() => setShowEvolution(false)}
+          onStartCheckIn={() => { setShowEvolution(false); setShowCheckIn(true) }}
         />
       )}
     </div>

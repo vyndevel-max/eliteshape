@@ -77,6 +77,44 @@ export default function WeeklyCheckIn({ profile, onProfileUpdate, onClose }: Pro
     setPreviews(p => p.filter((_, idx) => idx !== i))
   }
 
+  const getWeekNumber = (d: Date): [number, number] => {
+    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
+    const dayNum = date.getUTCDay() || 7
+    date.setUTCDate(date.getUTCDate() + 4 - dayNum)
+    const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1))
+    return [Math.ceil((((date.getTime() - yearStart.getTime()) / 86400000) + 1) / 7), date.getUTCFullYear()]
+  }
+
+  const uploadPhoto = async (photo: File): Promise<string | null> => {
+    try {
+      const [week, year] = getWeekNumber(new Date())
+      const ext = photo.name.split('.').pop() || 'jpg'
+      const path = `${profile.id}/${year}-W${week}.${ext}`
+      const { data, error } = await supabase.storage
+        .from('evolution-photos')
+        .upload(path, photo, { upsert: true, contentType: photo.type })
+      if (error) { console.error('Storage upload error:', error); return null }
+      const { data: urlData } = supabase.storage.from('evolution-photos').getPublicUrl(path)
+      return urlData?.publicUrl ?? null
+    } catch { return null }
+  }
+
+  const saveWeeklyPhoto = async (photoUrl: string | null, data: CheckInResult) => {
+    try {
+      const [week, year] = getWeekNumber(new Date())
+      await supabase.from('weekly_photos' as any).upsert({
+        user_id: profile.id,
+        photo_url: photoUrl || '',
+        week_number: week,
+        year,
+        analysis_summary: data.evolution_summary,
+        score: data.score,
+        fat_percentage: data.fat_percentage_estimate,
+        recorded_at: new Date().toISOString(),
+      }, { onConflict: 'user_id,week_number,year' })
+    } catch (e) { console.error('Save weekly photo error:', e) }
+  }
+
   const runCheckIn = async () => {
     if (!photos.length) { toast.error('Envie pelo menos 1 foto'); return }
     setStep('processing')
@@ -86,7 +124,7 @@ export default function WeeklyCheckIn({ profile, onProfileUpdate, onClose }: Pro
       'Comparando com análise anterior...',
       'Avaliando consistência da semana...',
       'Decidindo ajustes no treino e dieta...',
-      'Gerando relatório...',
+      'Salvando foto de evolução...',
     ]
     let i = 0
     setStatusMsg(steps[0])
@@ -97,6 +135,10 @@ export default function WeeklyCheckIn({ profile, onProfileUpdate, onClose }: Pro
 
     try {
       const images = await Promise.all(photos.map(fileToBase64))
+      const [photoUrl] = await Promise.all([
+        uploadPhoto(photos[0]),
+      ])
+
       const res = await fetch('/api/ai/checkin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -104,10 +146,11 @@ export default function WeeklyCheckIn({ profile, onProfileUpdate, onClose }: Pro
       })
       if (!res.ok) throw new Error('Erro na análise')
       const data: CheckInResult = await res.json()
+
+      await saveWeeklyPhoto(photoUrl, data)
       setResult(data)
       setStep('result')
 
-      // Apply updates to parent
       const updates: Partial<Profile> = {
         last_analysis: JSON.stringify({ ...data, overall_score: data.score }),
       }
