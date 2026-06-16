@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import type { Profile } from '@/types/supabase'
 import toast from 'react-hot-toast'
+import UpgradeModal from '@/components/features/profile/UpgradeModal'
 
 const IconSave = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
 const IconLoader = () => <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 1 1-6.219-8.56" strokeLinecap="round"/></svg>
@@ -120,6 +121,7 @@ export default function ProfilePanel({ profile, onProfileUpdate }: ProfilePanelP
   const [saving, setSaving] = useState(false)
   const [subscribing, setSubscribing] = useState(false)
   const [cancelling, setCancelling] = useState(false)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const supabase = createClient()
   const router = useRouter()
 
@@ -127,19 +129,6 @@ export default function ProfilePanel({ profile, onProfileUpdate }: ProfilePanelP
     await supabase.auth.signOut()
     router.push('/auth')
     router.refresh()
-  }
-
-  const subscribe = async () => {
-    setSubscribing(true)
-    try {
-      const res = await fetch('/api/subscription/subscribe', { method: 'POST' })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Erro ao iniciar assinatura')
-      if (data.checkoutUrl) window.location.href = data.checkoutUrl
-    } catch (e: any) {
-      toast.error(e.message || 'Erro ao iniciar assinatura')
-      setSubscribing(false)
-    }
   }
 
   const cancelSubscription = async () => {
@@ -241,8 +230,8 @@ export default function ProfilePanel({ profile, onProfileUpdate }: ProfilePanelP
                 {cancelling ? 'Cancelando...' : 'Cancelar assinatura'}
               </button>
             ) : (
-              <button onClick={subscribe} disabled={subscribing} className="btn btn-primary disabled:opacity-50">
-                {subscribing ? 'Abrindo checkout...' : 'Assinar — R$ 49,90/mês'}
+              <button onClick={() => setShowUpgradeModal(true)} className="btn btn-primary">
+                Assinar — R$ 49,90/mês
               </button>
             )}
           </div>
@@ -307,6 +296,13 @@ export default function ProfilePanel({ profile, onProfileUpdate }: ProfilePanelP
           </button>
         </div>
       </div>
+
+      {showUpgradeModal && (
+        <UpgradeModal
+          onClose={() => setShowUpgradeModal(false)}
+          onPremiumActivated={() => onProfileUpdate({ is_premium: true } as any)}
+        />
+      )}
     </div>
   )
 }

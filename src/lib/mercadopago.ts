@@ -149,3 +149,61 @@ export function validateWebhookSignature(params: {
 
   return computed === v1
 }
+
+// ============================================================
+// PAGAMENTO AVULSO VIA PIX (sem renovação automática)
+// Endpoint: POST /v1/payments — cobrança única, libera N dias de premium.
+// Diferente da assinatura por cartão, aqui o cliente paga mês a mês manualmente.
+// ============================================================
+
+export interface MPPixPayment {
+  id: string
+  status: string
+  qr_code?: string          // código copia-e-cola
+  qr_code_base64?: string   // imagem do QR Code em base64
+  ticket_url?: string       // link para visualizar o pagamento (ex: abrir no app do banco)
+}
+
+/**
+ * Cria um pagamento Pix avulso. O usuário paga uma vez e libera `amount`
+ * por um período fixo (ex: 30 dias) — sem renovação automática.
+ */
+export async function createPixPayment(params: {
+  amount: number
+  description: string
+  payerEmail: string
+  externalReference: string // user.id do Supabase — vem de volta no webhook
+  notificationUrl: string
+}): Promise<MPPixPayment> {
+  const { amount, description, payerEmail, externalReference, notificationUrl } = params
+
+  const res = await fetch(`${MP_API}/v1/payments`, {
+    method: 'POST',
+    headers: {
+      ...authHeaders(),
+      'X-Idempotency-Key': `${externalReference}-${Date.now()}`,
+    },
+    body: JSON.stringify({
+      transaction_amount: amount,
+      description,
+      payment_method_id: 'pix',
+      payer: { email: payerEmail },
+      external_reference: externalReference,
+      notification_url: notificationUrl,
+    }),
+  })
+
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error(`Erro ao criar pagamento Pix MP: ${res.status} ${err}`)
+  }
+
+  const data = await res.json()
+  return {
+    id: String(data.id),
+    status: data.status,
+    qr_code: data.point_of_interaction?.transaction_data?.qr_code,
+    qr_code_base64: data.point_of_interaction?.transaction_data?.qr_code_base64,
+    ticket_url: data.point_of_interaction?.transaction_data?.ticket_url,
+  }
+}

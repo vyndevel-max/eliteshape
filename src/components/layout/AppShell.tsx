@@ -15,6 +15,7 @@ import RankingPanel from '@/components/features/ranking/RankingPanel'
 import CommunityPanel from '@/components/features/community/CommunityPanel'
 import AdminPanel from '@/components/features/admin/AdminPanel'
 import OnboardingQuiz from '@/components/features/onboarding/OnboardingQuiz'
+import UpgradeModal from '@/components/features/profile/UpgradeModal'
 import ChatPanel from '@/components/features/chat/ChatPanel'
 import DashboardPanel from '@/components/features/dashboard/DashboardPanel'
 import ForgeVoiceAssistant from '@/components/features/voice/ForgeVoiceAssistant'
@@ -139,6 +140,7 @@ export default function AppShell({ initialProfile }: AppShellProps) {
   const [profile, setProfile] = useState<Profile | null>(initialProfile)
   const [collapsed, setCollapsed] = useState(false)
   const [subscribing, setSubscribing] = useState(false)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const { activeTab, setActiveTab } = useAppStore()
   const router = useRouter()
   const supabase = createClient()
@@ -264,8 +266,8 @@ export default function AppShell({ initialProfile }: AppShellProps) {
               <p className="text-[11px] text-[#666] mb-3 leading-relaxed">
                 Libere o Diagnóstico Forge completo, fotos ilimitadas e receitas exclusivas.
               </p>
-              <button onClick={handleSubscribe} disabled={subscribing} className="w-full py-2 bg-[#FF3B30] text-white text-[11px] font-black rounded-lg hover:bg-[#CC2E26] transition-colors tracking-wider disabled:opacity-50" style={{ fontFamily: 'var(--font-display)' }}>
-                {subscribing ? 'ABRINDO CHECKOUT...' : 'ASSINAR R$ 49,90/mês'}
+              <button onClick={() => setShowUpgradeModal(true)} className="w-full py-2 bg-[#FF3B30] text-white text-[11px] font-black rounded-lg hover:bg-[#CC2E26] transition-colors tracking-wider" style={{ fontFamily: 'var(--font-display)' }}>
+                ASSINAR R$ 49,90/mês
               </button>
             </div>
           )}
@@ -351,6 +353,13 @@ export default function AppShell({ initialProfile }: AppShellProps) {
 
       {/* Forge AI floating voice assistant (hidden on the Forge AI chat tab itself) */}
       {profile && activeTab !== 'chat' && <ForgeVoiceAssistant profile={profile} />}
+
+      {showUpgradeModal && (
+        <UpgradeModal
+          onClose={() => setShowUpgradeModal(false)}
+          onPremiumActivated={() => setProfile(prev => prev ? { ...prev, is_premium: true } as Profile : null)}
+        />
+      )}
     </div>
   )
 }
