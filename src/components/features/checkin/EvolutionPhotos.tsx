@@ -53,7 +53,30 @@ export default function EvolutionPhotos({ profile, onClose, onStartCheckIn }: Pr
         .eq('user_id', profile.id)
         .order('recorded_at', { ascending: false })
         .limit(20)
-      setPhotos((data || []) as WeeklyPhoto[])
+
+      // Renew signed URLs for private bucket photos
+      const rows = (data || []) as WeeklyPhoto[]
+      const renewed = await Promise.all(rows.map(async (row) => {
+        if (!row.photo_url) return row
+        // Only try to renew if it looks like a Supabase storage path (not already a signed URL query param)
+        if (row.photo_url.includes('/object/sign/') || row.photo_url.includes('token=')) {
+          // Already a signed URL — return as-is (may be expired, handled by img onError)
+          return row
+        }
+        // Legacy public URL — try to get signed URL from the path
+        try {
+          const pathMatch = row.photo_url.match(/evolution-photos\/(.+)$/)
+          if (pathMatch) {
+            const { data: s } = await supabase.storage
+              .from('evolution-photos')
+              .createSignedUrl(pathMatch[1], 60 * 60 * 24 * 365)
+            if (s?.signedUrl) return { ...row, photo_url: s.signedUrl }
+          }
+        } catch {}
+        return row
+      }))
+
+      setPhotos(renewed)
       setLoading(false)
     }
     load()

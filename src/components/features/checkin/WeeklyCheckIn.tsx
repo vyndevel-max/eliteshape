@@ -90,13 +90,32 @@ export default function WeeklyCheckIn({ profile, onProfileUpdate, onClose }: Pro
       const [week, year] = getWeekNumber(new Date())
       const ext = photo.name.split('.').pop() || 'jpg'
       const path = `${profile.id}/${year}-W${week}.${ext}`
-      const { data, error } = await supabase.storage
+
+      const { error: uploadError } = await supabase.storage
         .from('evolution-photos')
         .upload(path, photo, { upsert: true, contentType: photo.type })
-      if (error) { console.error('Storage upload error:', error); return null }
-      const { data: urlData } = supabase.storage.from('evolution-photos').getPublicUrl(path)
-      return urlData?.publicUrl ?? null
-    } catch { return null }
+
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError)
+        toast.error(`Erro ao salvar foto: ${uploadError.message}`)
+        return null
+      }
+
+      // Bucket é privado — gerar URL assinada válida por 10 anos
+      const { data: signedData, error: signError } = await supabase.storage
+        .from('evolution-photos')
+        .createSignedUrl(path, 60 * 60 * 24 * 365 * 10)
+
+      if (signError) {
+        console.error('Signed URL error:', signError)
+        return null
+      }
+
+      return signedData?.signedUrl ?? null
+    } catch (e) {
+      console.error('uploadPhoto exception:', e)
+      return null
+    }
   }
 
   const saveWeeklyPhoto = async (photoUrl: string | null, data: CheckInResult) => {
