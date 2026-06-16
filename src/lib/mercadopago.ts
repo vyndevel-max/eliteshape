@@ -21,6 +21,11 @@ export interface MPPreapprovalPlan {
 /**
  * Cria um plano de assinatura recorrente (preapproval_plan).
  * Chame uma única vez por "produto" (ex: "FORGE Premium Mensal") e reutilize o id.
+ * O retorno já inclui init_point — o link de checkout hospedado do Mercado Pago,
+ * que coleta o cartão do usuário e cria a assinatura automaticamente. Não é necessário
+ * (e nem desejável) chamar POST /preapproval manualmente depois — esse endpoint exige
+ * um card_token_id já tokenizado, que só existe se você implementar o Card Form
+ * (checkout transparente) no frontend. Usar o checkout hospedado evita essa complexidade.
  */
 export async function createSubscriptionPlan(params: {
   reason: string
@@ -56,40 +61,18 @@ export async function createSubscriptionPlan(params: {
   return res.json()
 }
 
-export interface MPSubscription {
-  id: string
-  status: string
-  init_point?: string
-}
-
 /**
- * Inscreve um usuário em um plano de assinatura existente.
- * Retorna init_point — a URL de checkout para redirecionar o usuário.
+ * Monta a URL de checkout do plano, anexando external_reference como query param
+ * para conseguirmos identificar o usuário quando o webhook de pagamento chegar.
+ * O Mercado Pago propaga query params extras da URL de retorno/checkout através
+ * do fluxo, mas o jeito confiável de linkar é usar o payer_email já vinculado à conta
+ * do usuário que loga no checkout — por isso back_url também carrega esse parâmetro
+ * como fallback de exibição (não é usado para autenticação).
  */
-export async function createSubscription(params: {
-  planId: string
-  payerEmail: string
-  externalReference: string // ex: user.id do Supabase
-  backUrl: string
-}): Promise<MPSubscription> {
-  const { planId, payerEmail, externalReference, backUrl } = params
-
-  const res = await fetch(`${MP_API}/preapproval`, {
-    method: 'POST',
-    headers: authHeaders(),
-    body: JSON.stringify({
-      preapproval_plan_id: planId,
-      payer_email: payerEmail,
-      external_reference: externalReference,
-      back_url: backUrl,
-    }),
-  })
-
-  if (!res.ok) {
-    const err = await res.text()
-    throw new Error(`Erro ao criar assinatura MP: ${res.status} ${err}`)
-  }
-  return res.json()
+export function buildCheckoutUrl(initPoint: string, externalReference: string): string {
+  const url = new URL(initPoint)
+  url.searchParams.set('external_reference', externalReference)
+  return url.toString()
 }
 
 /** Busca os dados completos de uma assinatura pelo ID. */

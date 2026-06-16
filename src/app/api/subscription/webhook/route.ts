@@ -6,6 +6,20 @@ import { getPayment, getSubscription, validateWebhookSignature } from '@/lib/mer
 
 export const maxDuration = 30
 
+// Identifica o usuário pelo e-mail do pagador. O checkout hospedado por plano
+// (init_point do preapproval_plan) não propaga external_reference automaticamente,
+// então usamos o e-mail salvo em profiles.mp_customer_email quando o usuário
+// clicou em "Assinar" como ponte de identificação.
+async function findUserIdByEmail(supabase: any, email: string | undefined | null): Promise<string | null> {
+  if (!email) return null
+  const { data } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('mp_customer_email', email)
+    .maybeSingle()
+  return data?.id || null
+}
+
 // Mercado Pago precisa de resposta rápida (idealmente <1s) e um 200/201 para não reenviar.
 // Qualquer erro inesperado também responde 200 para não gerar reenvios infinitos —
 // loga o erro para investigação manual, mas não deixa a fila travada.
@@ -36,12 +50,13 @@ export async function POST(req: NextRequest) {
       if (!paymentId) return NextResponse.json({ received: true })
 
       const payment = await getPayment(paymentId)
-      const externalRef = payment.external_reference // user.id que enviamos ao criar a assinatura
+      const payerEmail = payment.payer?.email
+      const userId = payment.external_reference || await findUserIdByEmail(supabase, payerEmail)
       const isApproved = payment.status === 'approved'
 
-      if (externalRef) {
+      if (userId) {
         await supabase.from('payment_events').insert({
-          user_id: externalRef,
+          user_id: userId,
           mp_payment_id: String(paymentId),
           mp_subscription_id: payment.preapproval_id || null,
           event_type: isApproved ? 'payment_approved' : 'payment_rejected',
@@ -59,12 +74,15 @@ export async function POST(req: NextRequest) {
             is_premium: true,
             premium_status: 'authorized',
             premium_expires_at: expiresAt.toISOString(),
-          }).eq('id', externalRef)
+            mp_subscription_id: payment.preapproval_id || null,
+          }).eq('id', userId)
         } else if (payment.status === 'rejected' || payment.status === 'cancelled') {
           await supabase.from('profiles').update({
             premium_status: payment.status,
-          }).eq('id', externalRef)
+          }).eq('id', userId)
         }
+      } else {
+        console.warn('Webhook MP: não foi possível identificar o usuário para o pagamento', paymentId, payerEmail)
       }
     }
 
@@ -74,9 +92,10 @@ export async function POST(req: NextRequest) {
       if (!subscriptionId) return NextResponse.json({ received: true })
 
       const subscription = await getSubscription(subscriptionId)
-      const externalRef = subscription.external_reference
+      const payerEmail = subscription.payer_email
+      const userId = subscription.external_reference || await findUserIdByEmail(supabase, payerEmail)
 
-      if (externalRef) {
+      if (userId) {
         const statusMap: Record<string, string> = {
           authorized: 'authorized',
           paused: 'paused',
@@ -88,15 +107,18 @@ export async function POST(req: NextRequest) {
         await supabase.from('profiles').update({
           premium_status: newStatus,
           is_premium: newStatus === 'authorized',
-        }).eq('id', externalRef)
+          mp_subscription_id: subscriptionId,
+        }).eq('id', userId)
 
         await supabase.from('payment_events').insert({
-          user_id: externalRef,
+          user_id: userId,
           mp_subscription_id: subscriptionId,
           event_type: 'subscription_status_changed',
           status: subscription.status,
           raw_payload: subscription,
         })
+      } else {
+        console.warn('Webhook MP: não foi possível identificar o usuário para a assinatura', subscriptionId, payerEmail)
       }
     }
 

@@ -2,24 +2,26 @@
 // @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { createSubscriptionPlan, createSubscription } from '@/lib/mercadopago'
+import { createSubscriptionPlan } from '@/lib/mercadopago'
 
 export const maxDuration = 30
 
 // Cacheia o plan_id em memória do processo para não recriar o plano em toda chamada.
 // Em produção, idealmente isso é criado uma única vez e salvo numa env var/config.
 let cachedPlanId: string | null = process.env.MP_PREMIUM_PLAN_ID || null
+let cachedInitPoint: string | null = null
 
-async function getOrCreatePlanId(appUrl: string): Promise<string> {
-  if (cachedPlanId) return cachedPlanId
+async function getOrCreatePlan(appUrl: string): Promise<{ id: string; init_point?: string }> {
+  if (cachedPlanId && cachedInitPoint) return { id: cachedPlanId, init_point: cachedInitPoint }
   const plan = await createSubscriptionPlan({
     reason: 'FORGE Premium Mensal',
     amount: 49.9,
     frequencyType: 'months',
-    backUrl: appUrl,
+    backUrl: `${appUrl}/?subscribed=1`,
   })
   cachedPlanId = plan.id
-  return plan.id
+  cachedInitPoint = plan.init_point || null
+  return plan
 }
 
 export async function POST(req: NextRequest) {
@@ -31,31 +33,31 @@ export async function POST(req: NextRequest) {
     }
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://eliteshape-eta.vercel.app'
-    const planId = await getOrCreatePlanId(appUrl)
+    const plan = await getOrCreatePlan(appUrl)
 
-    const subscription = await createSubscription({
-      planId,
-      payerEmail: user.email,
-      externalReference: user.id,
-      backUrl: `${appUrl}/?subscribed=1`,
-    })
+    if (!plan.init_point) {
+      throw new Error('Mercado Pago não retornou o link de checkout do plano')
+    }
 
-    // Marca como "pending" — só fica "authorized" quando o webhook confirmar
+    // Salva o e-mail do usuário como referência — o webhook usará esse e-mail
+    // (vindo do pagamento aprovado) para identificar a qual perfil ativar o premium.
     await supabase.from('profiles').update({
-      mp_subscription_id: subscription.id,
       mp_customer_email: user.email,
       premium_status: 'pending',
     }).eq('id', user.id)
 
     await supabase.from('payment_events').insert({
       user_id: user.id,
-      mp_subscription_id: subscription.id,
-      event_type: 'subscription_created',
-      status: subscription.status,
-      raw_payload: subscription,
+      mp_subscription_id: plan.id,
+      event_type: 'checkout_started',
+      status: 'pending',
+      raw_payload: { plan_id: plan.id, payer_email: user.email },
     })
 
-    return NextResponse.json({ checkoutUrl: subscription.init_point })
+    // Redireciona o usuário para o checkout hospedado do Mercado Pago.
+    // Lá ele faz login com o MESMO e-mail (ou digita o e-mail no formulário de
+    // cartão) e o pagamento/assinatura fica vinculado a esse e-mail.
+    return NextResponse.json({ checkoutUrl: plan.init_point })
   } catch (e: any) {
     console.error('subscribe error', e)
     return NextResponse.json({ error: e.message }, { status: 500 })
