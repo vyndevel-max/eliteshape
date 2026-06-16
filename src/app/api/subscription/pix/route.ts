@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createPixPayment } from '@/lib/mercadopago'
+import { notifyDiscord } from '@/lib/discord'
 
 export const maxDuration = 30
 
@@ -36,6 +37,16 @@ export async function POST(req: NextRequest) {
       amount: 49.9,
       status: payment.status,
       raw_payload: payment,
+    })
+
+    const { data: profileData } = await supabase.from('profiles').select('name').eq('id', user.id).single()
+    notifyDiscord({
+      status: 'pending',
+      userName: profileData?.name,
+      userEmail: user.email,
+      amount: 49.9,
+      method: 'pix',
+      paymentId: payment.id,
     })
 
     return NextResponse.json({

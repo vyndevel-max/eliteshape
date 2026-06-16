@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createSubscriptionPlan } from '@/lib/mercadopago'
+import { notifyDiscord } from '@/lib/discord'
 
 export const maxDuration = 30
 
@@ -52,6 +53,16 @@ export async function POST(req: NextRequest) {
       event_type: 'checkout_started',
       status: 'pending',
       raw_payload: { plan_id: plan.id, payer_email: user.email },
+    })
+
+    const { data: profileData } = await supabase.from('profiles').select('name').eq('id', user.id).single()
+    notifyDiscord({
+      status: 'pending',
+      userName: profileData?.name,
+      userEmail: user.email,
+      amount: 49.9,
+      method: 'card_subscription',
+      subscriptionId: plan.id,
     })
 
     // Redireciona o usuário para o checkout hospedado do Mercado Pago.

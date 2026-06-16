@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getPayment, getSubscription, validateWebhookSignature } from '@/lib/mercadopago'
+import { notifyDiscord } from '@/lib/discord'
 
 export const maxDuration = 30
 
@@ -65,6 +66,9 @@ export async function POST(req: NextRequest) {
           raw_payload: payment,
         })
 
+        const { data: profileData } = await supabase.from('profiles').select('name').eq('id', userId).single()
+        const method = payment.preapproval_id ? 'card_subscription' : 'pix'
+
         if (isApproved) {
           // Renova por mais 1 mês (30 dias) a partir de agora — cobre o ciclo recorrente
           const expiresAt = new Date()
@@ -76,10 +80,30 @@ export async function POST(req: NextRequest) {
             premium_expires_at: expiresAt.toISOString(),
             mp_subscription_id: payment.preapproval_id || null,
           }).eq('id', userId)
+
+          notifyDiscord({
+            status: 'approved',
+            userName: profileData?.name,
+            userEmail: payerEmail,
+            amount: payment.transaction_amount,
+            method,
+            paymentId: String(paymentId),
+            subscriptionId: payment.preapproval_id,
+          })
         } else if (payment.status === 'rejected' || payment.status === 'cancelled') {
           await supabase.from('profiles').update({
             premium_status: payment.status,
           }).eq('id', userId)
+
+          notifyDiscord({
+            status: payment.status === 'rejected' ? 'rejected' : 'cancelled',
+            userName: profileData?.name,
+            userEmail: payerEmail,
+            amount: payment.transaction_amount,
+            method,
+            paymentId: String(paymentId),
+            subscriptionId: payment.preapproval_id,
+          })
         }
       } else {
         console.warn('Webhook MP: não foi possível identificar o usuário para o pagamento', paymentId, payerEmail)
@@ -117,6 +141,17 @@ export async function POST(req: NextRequest) {
           status: subscription.status,
           raw_payload: subscription,
         })
+
+        if (subscription.status === 'cancelled') {
+          const { data: profileData } = await supabase.from('profiles').select('name').eq('id', userId).single()
+          notifyDiscord({
+            status: 'cancelled',
+            userName: profileData?.name,
+            userEmail: payerEmail,
+            method: 'card_subscription',
+            subscriptionId,
+          })
+        }
       } else {
         console.warn('Webhook MP: não foi possível identificar o usuário para a assinatura', subscriptionId, payerEmail)
       }
