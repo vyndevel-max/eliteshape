@@ -58,7 +58,11 @@ export default function UpgradeModal({ onClose, onPremiumActivated }: Props) {
   const handleCardSubscribe = async () => {
     setSubscribingCard(true)
     try {
-      const res = await fetch('/api/subscription/subscribe', { method: 'POST' })
+      const res = await fetch('/api/subscription/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(couponApplied ? { couponId: couponApplied.couponId } : {}),
+      })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Erro ao iniciar assinatura')
       if (data.checkoutUrl) window.location.href = data.checkoutUrl
@@ -131,50 +135,17 @@ export default function UpgradeModal({ onClose, onPremiumActivated }: Props) {
 
           {mode === 'choose' && (
             <>
-              <p className="text-[#888] text-sm leading-relaxed mb-6">
+              <p className="text-[#888] text-sm leading-relaxed mb-5">
                 Diagnóstico Forge completo, fotos ilimitadas, Forge AI sem limites e check-ins semanais.
               </p>
 
-              <div className="space-y-3">
-                <button onClick={handleCardSubscribe} disabled={subscribingCard}
-                  className="w-full text-left rounded-2xl bg-[#1B1B1B] border border-[#2A2A2A] hover:border-[#FF6A00]/40 p-4 transition-all disabled:opacity-50">
-                  <div className="flex items-center gap-3">
-                    <span className="w-10 h-10 rounded-xl forge-gradient-bg flex items-center justify-center text-white flex-shrink-0"><IconCard /></span>
-                    <div className="flex-1">
-                      <p className="text-white font-bold text-sm">Cartão — Renovação automática</p>
-                      <p className="text-[#666] text-xs mt-0.5">R$ 49,90/mês · cobrado automaticamente, cancele quando quiser</p>
-                    </div>
-                    {subscribingCard && <IconLoader />}
-                  </div>
-                </button>
-
-                <button onClick={handlePixGenerate} disabled={loadingPix}
-                  className="w-full text-left rounded-2xl bg-[#1B1B1B] border border-[#2A2A2A] hover:border-[#22C55E]/40 p-4 transition-all disabled:opacity-50">
-                  <div className="flex items-center gap-3">
-                    <span className="w-10 h-10 rounded-xl bg-[#22C55E]/15 border border-[#22C55E]/30 flex items-center justify-center text-[#22C55E] flex-shrink-0"><IconPix /></span>
-                    <div className="flex-1">
-                      <p className="text-white font-bold text-sm">Pix — Só este mês</p>
-                      <p className="text-[#666] text-xs mt-0.5">
-                        {couponApplied ? (
-                          <>
-                            <span className="line-through text-[#555] mr-1.5">R$ 49,90</span>
-                            <span className="text-[#22C55E] font-bold">R$ {couponApplied.finalPrice.toFixed(2).replace('.', ',')}</span>
-                          </>
-                        ) : 'R$ 49,90'} · libera 30 dias, sem renovação automática
-                      </p>
-                    </div>
-                    {loadingPix && <IconLoader />}
-                  </div>
-                </button>
-              </div>
-
-              {/* Cupom de desconto — aplica-se ao pagamento via Pix */}
+              {/* Cupom de desconto — aplica-se a cartão e Pix */}
               {!showCouponInput ? (
-                <button onClick={() => setShowCouponInput(true)} className="text-xs text-[#666] hover:text-[#999] mt-3 transition-colors">
+                <button onClick={() => setShowCouponInput(true)} className="text-xs text-[#666] hover:text-[#999] mb-4 transition-colors block">
                   Tenho um cupom de desconto
                 </button>
               ) : (
-                <div className="mt-3 space-y-2">
+                <div className="mb-4 space-y-2">
                   <div className="flex items-center gap-2">
                     <input
                       type="text"
@@ -198,10 +169,50 @@ export default function UpgradeModal({ onClose, onPremiumActivated }: Props) {
                     )}
                   </div>
                   {couponApplied && (
-                    <p className="text-[#22C55E] text-xs flex items-center gap-1.5"><IconCheck />Cupom {couponApplied.code} aplicado — válido para pagamento via Pix</p>
+                    <p className="text-[#22C55E] text-xs flex items-center gap-1.5"><IconCheck />Cupom {couponApplied.code} aplicado — válido para cartão e Pix</p>
                   )}
                 </div>
               )}
+
+              <div className="space-y-3">
+                <button onClick={handleCardSubscribe} disabled={subscribingCard}
+                  className="w-full text-left rounded-2xl bg-[#1B1B1B] border border-[#2A2A2A] hover:border-[#FF6A00]/40 p-4 transition-all disabled:opacity-50">
+                  <div className="flex items-center gap-3">
+                    <span className="w-10 h-10 rounded-xl forge-gradient-bg flex items-center justify-center text-white flex-shrink-0"><IconCard /></span>
+                    <div className="flex-1">
+                      <p className="text-white font-bold text-sm">Cartão — Renovação automática</p>
+                      <p className="text-[#666] text-xs mt-0.5">
+                        {couponApplied ? (
+                          <>
+                            <span className="line-through text-[#555] mr-1.5">R$ 49,90</span>
+                            <span className="text-[#22C55E] font-bold">R$ {couponApplied.finalPrice.toFixed(2).replace('.', ',')}</span>
+                          </>
+                        ) : 'R$ 49,90'}/mês · cobrado automaticamente, cancele quando quiser
+                      </p>
+                    </div>
+                    {subscribingCard && <IconLoader />}
+                  </div>
+                </button>
+
+                <button onClick={handlePixGenerate} disabled={loadingPix}
+                  className="w-full text-left rounded-2xl bg-[#1B1B1B] border border-[#2A2A2A] hover:border-[#22C55E]/40 p-4 transition-all disabled:opacity-50">
+                  <div className="flex items-center gap-3">
+                    <span className="w-10 h-10 rounded-xl bg-[#22C55E]/15 border border-[#22C55E]/30 flex items-center justify-center text-[#22C55E] flex-shrink-0"><IconPix /></span>
+                    <div className="flex-1">
+                      <p className="text-white font-bold text-sm">Pix — Quero testar 1 mês</p>
+                      <p className="text-[#666] text-xs mt-0.5">
+                        {couponApplied ? (
+                          <>
+                            <span className="line-through text-[#555] mr-1.5">R$ 49,90</span>
+                            <span className="text-[#22C55E] font-bold">R$ {couponApplied.finalPrice.toFixed(2).replace('.', ',')}</span>
+                          </>
+                        ) : 'R$ 49,90'} · libera 30 dias, sem renovação automática
+                      </p>
+                    </div>
+                    {loadingPix && <IconLoader />}
+                  </div>
+                </button>
+              </div>
 
               <p className="text-[#444] text-[11px] text-center mt-5">
                 Pagamento processado de forma segura pelo Mercado Pago

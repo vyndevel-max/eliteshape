@@ -56,10 +56,20 @@ export async function POST(req: NextRequest) {
 
     // ── Evento: pagamento (avulso ou de assinatura) ──
     if (topic === 'payment') {
-      const paymentId = body.data?.id
-      console.log('💳 Processando evento payment, paymentId:', paymentId)
+      // O Mercado Pago pode mandar o ID em formatos levemente diferentes dependendo
+      // do tipo de notificação (IPN legado vs Webhooks v2, ou query string vs body).
+      // Cobrimos todos os caminhos conhecidos antes de desistir.
+      const paymentId =
+        body.data?.id ||
+        body.resource?.split?.('/')?.pop() ||
+        url.searchParams.get('data.id') ||
+        url.searchParams.get('id') ||
+        ''
+
+      console.log('💳 Processando evento payment, paymentId extraído:', paymentId)
+
       if (!paymentId) {
-        console.warn('⚠️ Payment sem ID no payload, ignorando')
+        console.warn('⚠️ Payment sem ID no payload. Body completo recebido:', JSON.stringify(body), '| Query string:', url.search)
         return NextResponse.json({ received: true })
       }
 
