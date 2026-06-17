@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
       const isApproved = payment.status === 'approved'
 
       if (userId) {
-        await supabase.from('payment_events').insert({
+        const { error: eventError } = await supabase.from('payment_events').insert({
           user_id: userId,
           mp_payment_id: String(paymentId),
           mp_subscription_id: payment.preapproval_id || null,
@@ -92,6 +92,8 @@ export async function POST(req: NextRequest) {
           status: payment.status,
           raw_payload: payment,
         })
+        if (eventError) console.error('❌ Erro ao inserir payment_event:', JSON.stringify(eventError))
+        else console.log('✅ payment_event registrado')
 
         const { data: profileData } = await supabase.from('profiles').select('name').eq('id', userId).single()
         const method = payment.preapproval_id ? 'card_subscription' : 'pix'
@@ -101,36 +103,55 @@ export async function POST(req: NextRequest) {
           const expiresAt = new Date()
           expiresAt.setDate(expiresAt.getDate() + 30)
 
-          await supabase.from('profiles').update({
+          console.log('🔓 Tentando ativar premium para userId:', userId)
+          const { data: updateData, error: updateError } = await supabase.from('profiles').update({
             is_premium: true,
             premium_status: 'authorized',
             premium_expires_at: expiresAt.toISOString(),
             mp_subscription_id: payment.preapproval_id || null,
-          }).eq('id', userId)
+          }).eq('id', userId).select()
 
-          notifyDiscord({
-            status: 'approved',
-            userName: profileData?.name,
-            userEmail: payerEmail,
-            amount: payment.transaction_amount,
-            method,
-            paymentId: String(paymentId),
-            subscriptionId: payment.preapproval_id,
-          })
+          if (updateError) {
+            console.error('❌ ERRO ao atualizar profiles.is_premium:', JSON.stringify(updateError))
+          } else {
+            console.log('✅ Profile atualizado com sucesso:', JSON.stringify(updateData))
+          }
+
+          try {
+            await notifyDiscord({
+              status: 'approved',
+              userName: profileData?.name,
+              userEmail: payerEmail,
+              amount: payment.transaction_amount,
+              method,
+              paymentId: String(paymentId),
+              subscriptionId: payment.preapproval_id,
+            })
+            console.log('✅ Discord notificado: aprovado')
+          } catch (discordErr) {
+            console.error('❌ Erro ao notificar Discord:', discordErr)
+          }
         } else if (payment.status === 'rejected' || payment.status === 'cancelled') {
-          await supabase.from('profiles').update({
+          const { error: rejectError } = await supabase.from('profiles').update({
             premium_status: payment.status,
           }).eq('id', userId)
+          if (rejectError) console.error('❌ Erro ao atualizar status rejeitado/cancelado:', JSON.stringify(rejectError))
 
-          notifyDiscord({
-            status: payment.status === 'rejected' ? 'rejected' : 'cancelled',
-            userName: profileData?.name,
-            userEmail: payerEmail,
-            amount: payment.transaction_amount,
-            method,
-            paymentId: String(paymentId),
-            subscriptionId: payment.preapproval_id,
-          })
+          try {
+            await notifyDiscord({
+              status: payment.status === 'rejected' ? 'rejected' : 'cancelled',
+              userName: profileData?.name,
+              userEmail: payerEmail,
+              amount: payment.transaction_amount,
+              method,
+              paymentId: String(paymentId),
+              subscriptionId: payment.preapproval_id,
+            })
+          } catch (discordErr) {
+            console.error('❌ Erro ao notificar Discord:', discordErr)
+          }
+        } else {
+          console.log('ℹ️ Pagamento ainda não está aprovado/rejeitado, status atual:', payment.status, '— nenhuma ação tomada')
         }
       } else {
         console.warn('Webhook MP: não foi possível identificar o usuário para o pagamento', paymentId, payerEmail)
