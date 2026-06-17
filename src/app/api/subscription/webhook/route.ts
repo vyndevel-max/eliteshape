@@ -1,7 +1,7 @@
 // src/app/api/subscription/webhook/route.ts
 // @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { getPayment, getSubscription, validateWebhookSignature } from '@/lib/mercadopago'
 import { notifyDiscord } from '@/lib/discord'
 
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
 
     const topic = body.type || body.topic || url.searchParams.get('topic')
     console.log('📌 Topic identificado:', topic)
-    const supabase = createClient()
+    const supabase = createAdminClient()
 
     // ── Evento: pagamento (avulso ou de assinatura) ──
     if (topic === 'payment') {
