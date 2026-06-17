@@ -39,38 +39,62 @@ export async function POST(req: NextRequest) {
       notificationUrl: `${appUrl}/api/subscription/webhook`,
     })
 
-    await supabase.from('profiles').update({
-      mp_customer_email: user.email,
-      premium_status: 'pending',
-    }).eq('id', user.id)
+    // A partir daqui, o pagamento Pix JÁ foi criado com sucesso — nenhuma falha
+    // nos passos seguintes (registro de evento, cupom, Discord) deve impedir
+    // o retorno do QR Code para o usuário. Cada passo é isolado com try/catch.
 
-    await supabase.from('payment_events').insert({
-      user_id: user.id,
-      mp_payment_id: payment.id,
-      event_type: 'pix_payment_created',
-      amount,
-      status: payment.status,
-      raw_payload: payment,
-    })
-
-    // Registra o uso do cupom imediatamente (evita reuso em paralelo) —
-    // se o pagamento acabar não sendo aprovado, isso é uma perda aceitável
-    // para um cupom promocional/teste; ajuste se precisar de regra mais estrita.
-    if (couponId) {
-      await supabase.from('coupon_uses').insert({ coupon_id: couponId, user_id: user.id })
-      const { data: c } = await supabase.from('coupons').select('uses_count').eq('id', couponId).single()
-      if (c) await supabase.from('coupons').update({ uses_count: (c.uses_count || 0) + 1 }).eq('id', couponId)
+    try {
+      await supabase.from('profiles').update({
+        mp_customer_email: user.email,
+        premium_status: 'pending',
+      }).eq('id', user.id)
+    } catch (e) {
+      console.error('Erro ao atualizar profile (não crítico):', e)
     }
 
-    const { data: profileData } = await supabase.from('profiles').select('name').eq('id', user.id).single()
-    notifyDiscord({
-      status: 'pending',
-      userName: profileData?.name,
-      userEmail: user.email,
-      amount,
-      method: 'pix',
-      paymentId: payment.id,
-    })
+    try {
+      await supabase.from('payment_events').insert({
+        user_id: user.id,
+        mp_payment_id: payment.id,
+        event_type: 'pix_payment_created',
+        amount,
+        status: payment.status,
+        raw_payload: payment,
+      })
+    } catch (e) {
+      console.error('Erro ao registrar payment_event (não crítico):', e)
+    }
+
+    // Registra o uso do cupom — se o usuário já usou esse cupom antes, a constraint
+    // UNIQUE(coupon_id, user_id) vai rejeitar o insert. Isso é esperado e NÃO deve
+    // quebrar o fluxo de pagamento, então o erro é apenas logado.
+    if (couponId) {
+      try {
+        const { error: insertError } = await supabase.from('coupon_uses').insert({ coupon_id: couponId, user_id: user.id })
+        if (insertError) {
+          console.warn('Cupom já usado por este usuário ou erro ao registrar uso:', insertError.message)
+        } else {
+          const { data: c } = await supabase.from('coupons').select('uses_count').eq('id', couponId).single()
+          if (c) await supabase.from('coupons').update({ uses_count: (c.uses_count || 0) + 1 }).eq('id', couponId)
+        }
+      } catch (e) {
+        console.error('Erro ao processar uso do cupom (não crítico):', e)
+      }
+    }
+
+    try {
+      const { data: profileData } = await supabase.from('profiles').select('name').eq('id', user.id).single()
+      await notifyDiscord({
+        status: 'pending',
+        userName: profileData?.name,
+        userEmail: user.email,
+        amount,
+        method: 'pix',
+        paymentId: payment.id,
+      })
+    } catch (e) {
+      console.error('Erro ao notificar Discord (não crítico):', e)
+    }
 
     return NextResponse.json({
       paymentId: payment.id,
